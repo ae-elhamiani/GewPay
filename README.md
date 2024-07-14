@@ -1,2 +1,0 @@
-# GWEPay
-# GWEPay
