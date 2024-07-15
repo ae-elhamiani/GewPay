@@ -4,21 +4,26 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IOwnerContract {
+
     function transferOwnership(address newOwner) external;
+
     function addTokens(address[] calldata tokens) external;
     function removeTokens(address[] calldata tokens) external;
     function getSupportedTokens() external view returns (address[] memory);
+    function istokenSupported(address token) external view returns (bool);
+
+
     function viewSystemTransactions() external view returns (uint256, uint256);
-    function viewTotalFee() external view returns (uint256);
-    function viewTotalMerchants() external view returns (uint256);
     function incrementTransactionCount() external;
     function addTransactionVolume(uint256 volume) external;
+
     function collectFee(address token, uint256 amount, uint256 amountUSDT) external; 
+    function viewTotalFee() external view returns (uint256);
+   
     function incrementMerchantCount() external;
     function incrementStoreCount() external;
-    function tokenSupport(address token) external view returns (bool);
+    function viewTotalMerchants() external view returns (uint256);
     function viewTotalStoreCount() external view returns (uint256); 
-    function tokenFeesCollected(address token) external view returns (uint256); 
 
     // Events
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
