@@ -14,6 +14,7 @@ contract MerchantRegister is IMerchantRegister {
 
     mapping(address => Merchant) public merchants;
 
+    event MerchantUpgraded(address indexed merchant);
     event MerchantRegistered(address indexed merchant);
     event MerchantUpgraded(address indexed merchant);
 
@@ -22,7 +23,10 @@ contract MerchantRegister is IMerchantRegister {
     }
 
     function registerMerchant() external override {
-        require(!merchants[msg.sender].isRegistered, "Merchant already registered");
+        require(
+            !merchants[msg.sender].isRegistered,
+            "Merchant already registered"
+        );
 
         merchants[msg.sender] = Merchant({
             isRegistered: true,
