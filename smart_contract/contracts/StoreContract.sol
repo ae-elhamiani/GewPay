@@ -5,8 +5,7 @@ import "./interfaces/IStoreContract.sol";
 import "./MerchantRegister.sol";
 import "./OwnerContract.sol";
 
-contract StoreContract is IStoreContract{
-
+contract StoreContract is IStoreContract {
     OwnerContract public ownerContract;
     MerchantRegister public merchantRegister;
 
@@ -21,21 +20,30 @@ contract StoreContract is IStoreContract{
 
     event StoreCreated(address indexed merchant, uint256 storeId);
 
-    constructor(address _ownerContractAddress, address _merchantRegisterAddress) {
+    constructor(address _ownerContractAddress, address _merchantRegisterAddress)
+    {
         ownerContract = OwnerContract(_ownerContractAddress);
         merchantRegister = MerchantRegister(_merchantRegisterAddress);
     }
 
-   function createStore(address[] calldata acceptedTokens) external override {
-        (bool isRegistered, bool isPremium) = merchantRegister.merchantInfo(msg.sender);
+    function createStore(address[] calldata acceptedTokens) external override {
+        (bool isRegistered, bool isPremium) = merchantRegister.merchantInfo(
+            msg.sender
+        );
         require(isRegistered, "Merchant not registered");
 
         if (!isPremium) {
-            require(storeCounts[msg.sender] == 0, "Basic plan merchants can only create one store");
+            require(
+                storeCounts[msg.sender] == 0,
+                "Basic plan merchants can only create one store"
+            );
         }
 
         for (uint256 i = 0; i < acceptedTokens.length; i++) {
-            require(ownerContract.tokenSupport(acceptedTokens[i]), "Token not supported by owner");
+            require(
+                ownerContract.tokenSupport(acceptedTokens[i]),
+                "Token not supported by owner"
+            );
         }
 
         uint256 storeId = storeCounts[msg.sender];
@@ -48,3 +56,46 @@ contract StoreContract is IStoreContract{
 
         emit StoreCreated(msg.sender, storeId);
     }
+
+    function viewStoreTokenAccepted(address merchant, uint256 storeId)
+        external
+        view
+        override
+        returns (address[] memory acceptedTokens)
+    {
+        return stores[merchant][storeId].acceptedTokens;
+    }
+
+    function viewStoreTransactions(address merchant, uint256 storeId)
+        external
+        view
+        override
+        returns (uint256 transactionCount, uint256 transactionVolume)
+    {
+        Store storage store = stores[merchant][storeId];
+        return (store.transactionCount, store.transactionVolume);
+    }
+
+    function incrementStoreTransactionCount(address merchant, uint256 storeId)
+        external
+        override
+    {
+        stores[merchant][storeId].transactionCount++;
+    }
+
+    function addStoreTransactionVolume(
+        address merchant,
+        uint256 storeId,
+        uint256 volumeUSDT
+    ) external override {
+        stores[merchant][storeId].transactionVolume += volumeUSDT;
+    }
+
+    function storeExists(address merchant, uint256 storeId)
+        external
+        view
+        returns (bool)
+    {
+        return storeId < storeCounts[merchant];
+    }
+}
