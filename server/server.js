@@ -1,26 +1,25 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import path from 'path';
-import fs from 'fs';
-import dotenv from 'dotenv';
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
-dotenv.config();
+require('dotenv').config();
 
-import connectDB from './config/db.js';
-import authRouter from './routes/auth.js';
-import errorHandler from './middleware/errorHandler.js';
+const connectDB  = require ('./config/db.js');
+const authRouter = require('./routes/auth');
+const errorHandler = require ('./middleware/errorHandler.js');
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5005;
 
 connectDB();
 
 // Middleware
 app.use(
     cors({
-      origin: 'http://localhost:3001',
+      origin: 'http://localhost:3002',
     })
   );
   app.use(bodyParser.json());
