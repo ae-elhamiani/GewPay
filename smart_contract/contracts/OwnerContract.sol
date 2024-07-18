@@ -80,7 +80,7 @@ contract OwnerContract is IOwnerContract {
             emit TokenAdded(token);
         }
     }
-   
+
 // colected fee
     function collectFee(address token, uint256 amount, uint256 amountUSDT) external {
         totalFeeCollected = ( amountUSDT * 5 ) / 100;
@@ -93,6 +93,32 @@ contract OwnerContract is IOwnerContract {
         return totalFeeCollected;  
     }
 
+// merchant and store
+
+    function incrementMerchantCount() external {
+        totalMerchantCount += 1;
+        emit MerchantCountIncremented(totalMerchantCount);
+    }
+
+    function incrementStoreCount() external {
+        totalStoreCount += 1;
+        emit StoreCountIncremented(totalStoreCount);
+    }
+
+    function viewTotalMerchants() external view returns (uint256) {
+        return totalMerchantCount;
+    }
+
+    function viewTotalStoreCount() external view returns (uint256) {
+        return totalStoreCount;
+    }
+
+  
+
+    function isTokenSupported(address token) external view returns (bool) {
+        return tokenSupport[token];
+    }
+}
 
 
 }
