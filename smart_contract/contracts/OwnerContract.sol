@@ -81,4 +81,18 @@ contract OwnerContract is IOwnerContract {
         }
     }
    
+// colected fee
+    function collectFee(address token, uint256 amount, uint256 amountUSDT) external {
+        totalFeeCollected = ( amountUSDT * 5 ) / 100;
+        tokenFeesCollected[token] += amount;
+        emit FeeCollected(token, amount);
+    }
+
+
+    function viewTotalFee() external view returns (uint256) {
+        return totalFeeCollected;  
+    }
+
+
+
 }
