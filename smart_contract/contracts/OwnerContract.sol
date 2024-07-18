@@ -29,6 +29,21 @@ contract OwnerContract is IOwnerContract {
         emit OwnershipTransferred(owner, newOwner);
         owner = newOwner;
     }
+//volume and transaction
+    function viewSystemTransactions() external view returns (uint256, uint256) {
+        return (totalTransactionCount, totalTransactionVolume);
+    }
+
+    function incrementTransactionCount() external {
+        totalTransactionCount += 1;
+        emit TransactionCountIncremented(totalTransactionCount);
+    }
+    
+     function addTransactionVolume(uint256 volumeUSDT) external {
+        totalTransactionVolume += volumeUSDT;
+        emit TransactionVolumeAdded(volumeUSDT, totalTransactionVolume);
+    }
+
 
    
 }
