@@ -10,6 +10,13 @@ require('dotenv').config();
 const connectDB  = require ('./config/db.js');
 const authRouter = require('./routes/auth');
 const errorHandler = require ('./middleware/errorHandler.js');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+require('dotenv').config();
+const  connectDB=  require('./config/db.js') ;
+const  authRouter= require('./routes/auth.js') ;
+const  errorHandler= require('./middleware/errorHandler.js') ;
 
 const app = express();
 const PORT = process.env.PORT || 5005;
