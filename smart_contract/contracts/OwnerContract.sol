@@ -29,15 +29,6 @@ contract OwnerContract is IOwnerContract {
         emit OwnershipTransferred(owner, newOwner);
         owner = newOwner;
     }
-        function addTokens(address[] calldata tokens) external onlyOwner {
-        for (uint256 i = 0; i < tokens.length; i++) {
-            address token = tokens[i];
-            require(!tokenSupport[token], "Token already supported");
-            tokenSupport[token] = true;
-            supportedTokens.push(token);
-            emit TokenAdded(token);
-        }
-    }
 
     function removeTokens(address[] calldata tokens) external onlyOwner {
         for (uint256 i = 0; i < tokens.length; i++) {
@@ -65,6 +56,29 @@ contract OwnerContract is IOwnerContract {
     function getSupportedTokens() external view returns (address[] memory) {
         return supportedTokens;
     }
+//volume and transaction
+    function viewSystemTransactions() external view returns (uint256, uint256) {
+        return (totalTransactionCount, totalTransactionVolume);
+    }
 
+    function incrementTransactionCount() external {
+        totalTransactionCount += 1;
+        emit TransactionCountIncremented(totalTransactionCount);
+    }
+    
+     function addTransactionVolume(uint256 volumeUSDT) external {
+        totalTransactionVolume += volumeUSDT;
+        emit TransactionVolumeAdded(volumeUSDT, totalTransactionVolume);
+    }
+
+        function addTokens(address[] calldata tokens) external onlyOwner {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            address token = tokens[i];
+            require(!tokenSupport[token], "Token already supported");
+            tokenSupport[token] = true;
+            supportedTokens.push(token);
+            emit TokenAdded(token);
+        }
+    }
    
 }
