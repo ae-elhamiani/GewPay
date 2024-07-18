@@ -29,6 +29,33 @@ contract OwnerContract is IOwnerContract {
         emit OwnershipTransferred(owner, newOwner);
         owner = newOwner;
     }
+
+    function removeTokens(address[] calldata tokens) external onlyOwner {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            address token = tokens[i];
+            require(tokenSupport[token], "Token not supported");
+            tokenSupport[token] = false;
+
+            uint256 lastTokenIndex = supportedTokens.length - 1;
+            uint256 tokenIndex = findTokenIndex(token);
+            supportedTokens[tokenIndex] = supportedTokens[lastTokenIndex];
+            supportedTokens.pop();
+            emit TokenRemoved(token);
+        }
+    }
+
+    function findTokenIndex(address token) internal view returns (uint256) {
+        for (uint256 i = 0; i < supportedTokens.length; i++) {
+            if (supportedTokens[i] == token) {
+                return i;
+            }
+        }
+        revert("Token not found");
+    }
+
+    function getSupportedTokens() external view returns (address[] memory) {
+        return supportedTokens;
+    }
 //volume and transaction
     function viewSystemTransactions() external view returns (uint256, uint256) {
         return (totalTransactionCount, totalTransactionVolume);
@@ -44,6 +71,14 @@ contract OwnerContract is IOwnerContract {
         emit TransactionVolumeAdded(volumeUSDT, totalTransactionVolume);
     }
 
-
+        function addTokens(address[] calldata tokens) external onlyOwner {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            address token = tokens[i];
+            require(!tokenSupport[token], "Token already supported");
+            tokenSupport[token] = true;
+            supportedTokens.push(token);
+            emit TokenAdded(token);
+        }
+    }
    
 }
