@@ -14,6 +14,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 require('dotenv').config();
+
 const  connectDB=  require('./config/db.js') ;
 const  authRouter= require('./routes/auth.js') ;
 const  errorHandler= require('./middleware/errorHandler.js') ;
