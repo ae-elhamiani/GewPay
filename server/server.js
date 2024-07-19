@@ -17,6 +17,7 @@ require('dotenv').config();
 
 const  connectDB=  require('./config/db.js') ;
 const  authRouter= require('./routes/auth.js') ;
+const emailRouter = require('./routes/email');
 const  errorHandler= require('./middleware/errorHandler.js') ;
 f
 const app = express();
@@ -34,6 +35,7 @@ app.use(
 
 // Routes
 app.use('/auth', authRouter);
+app.use('/email', emailRouter);
 
 // Global error handling middleware
 app.use(errorHandler);
