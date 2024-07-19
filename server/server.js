@@ -7,19 +7,21 @@ const fs = require('fs');
 
 require('dotenv').config();
 
-const connectDB  = require ('./config/db.js');
+const connectDB = require('./config/db.js');
 const authRouter = require('./routes/auth');
-const errorHandler = require ('./middleware/errorHandler.js');
+const errorHandler = require('./middleware/errorHandler.js');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
 require('dotenv').config();
 
-const  connectDB=  require('./config/db.js') ;
-const  authRouter= require('./routes/auth.js') ;
+const connectDB = require('./config/db.js');
+const authRouter = require('./routes/auth.js');
 const emailRouter = require('./routes/email');
-const  errorHandler= require('./middleware/errorHandler.js') ;
-f
+const phoneRouter = require('./routes/phone');
+
+const errorHandler = require('./middleware/errorHandler.js');
+f;
 const app = express();
 const PORT = process.env.PORT || 5005;
 
@@ -27,15 +29,16 @@ connectDB();
 
 // Middleware
 app.use(
-    cors({
-      origin: 'http://localhost:3002',
-    })
-  );
-  app.use(bodyParser.json());
+  cors({
+    origin: 'http://localhost:3002',
+  })
+);
+app.use(bodyParser.json());
 
 // Routes
 app.use('/auth', authRouter);
 app.use('/email', emailRouter);
+app.use('/phone', phoneRouter);
 
 // Global error handling middleware
 app.use(errorHandler);
