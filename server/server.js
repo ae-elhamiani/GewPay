@@ -19,11 +19,17 @@ const connectDB = require('./config/db.js');
 const authRouter = require('./routes/auth.js');
 const emailRouter = require('./routes/email');
 const phoneRouter = require('./routes/phone');
+const profileRoutes = require('./routes/profile');
 
 const errorHandler = require('./middleware/errorHandler.js');
-f;
+
 const app = express();
 const PORT = process.env.PORT || 5005;
+
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 connectDB();
 
@@ -39,6 +45,7 @@ app.use(bodyParser.json());
 app.use('/auth', authRouter);
 app.use('/email', emailRouter);
 app.use('/phone', phoneRouter);
+app.use('/profile', profileRoutes);
 
 // Global error handling middleware
 app.use(errorHandler);
