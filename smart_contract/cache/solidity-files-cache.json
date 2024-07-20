@@ -1,0 +1,273 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/Users/ayman/Documents/payment-gateway/smart_contract/contracts/MerchantRegister.sol": {
+      "lastModificationDate": 1721505727958,
+      "contentHash": "9015f69e4ce5c1e8a63470522ba10aff",
+      "sourceName": "contracts/MerchantRegister.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IMerchantRegister.sol",
+        "./OwnerContract.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "MerchantRegister"
+      ]
+    },
+    "/Users/ayman/Documents/payment-gateway/smart_contract/contracts/interfaces/IMerchantRegister.sol": {
+      "lastModificationDate": 1721135159573,
+      "contentHash": "15e494e38713293079bb91ce64797f0b",
+      "sourceName": "contracts/interfaces/IMerchantRegister.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IOwnerContract.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "IMerchantRegister"
+      ]
+    },
+    "/Users/ayman/Documents/payment-gateway/smart_contract/contracts/OwnerContract.sol": {
+      "lastModificationDate": 1721505395070,
+      "contentHash": "8aa2d61bdeda2084f243eba9b13c45a3",
+      "sourceName": "contracts/OwnerContract.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IOwnerContract.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "OwnerContract"
+      ]
+    },
+    "/Users/ayman/Documents/payment-gateway/smart_contract/contracts/interfaces/IOwnerContract.sol": {
+      "lastModificationDate": 1721505779796,
+      "contentHash": "b55d7a0335c8d33973ba63a4be821cb8",
+      "sourceName": "contracts/interfaces/IOwnerContract.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "IOwnerContract"
+      ]
+    },
+    "/Users/ayman/Documents/payment-gateway/smart_contract/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+      "lastModificationDate": 1720982936224,
+      "contentHash": "5517c8678c18eb1a8ba58810e7ca39ca",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/Users/ayman/Documents/payment-gateway/smart_contract/contracts/StoreContract.sol": {
+      "lastModificationDate": 1721149634681,
+      "contentHash": "280df8d5f080bb1928b0e8b1e0eb733a",
+      "sourceName": "contracts/StoreContract.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IStoreContract.sol",
+        "./MerchantRegister.sol",
+        "./OwnerContract.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "StoreContract"
+      ]
+    },
+    "/Users/ayman/Documents/payment-gateway/smart_contract/contracts/interfaces/IStoreContract.sol": {
+      "lastModificationDate": 1721149634681,
+      "contentHash": "edea11cf4949724b2af82dad712c9850",
+      "sourceName": "contracts/interfaces/IStoreContract.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IMerchantRegister.sol",
+        "./IOwnerContract.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "IStoreContract"
+      ]
+    }
+  }
+}
