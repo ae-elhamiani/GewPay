@@ -10,7 +10,7 @@ interface IOwnerContract {
     function addTokens(address[] calldata tokens) external;
     function removeTokens(address[] calldata tokens) external;
     function getSupportedTokens() external view returns (address[] memory);
-    function istokenSupported(address token) external view returns (bool);
+    function isTokenSupported(address token) external view returns (bool);
 
 
     function viewSystemTransactions() external view returns (uint256, uint256);

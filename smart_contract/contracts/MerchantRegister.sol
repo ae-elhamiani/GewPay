@@ -16,7 +16,6 @@ contract MerchantRegister is IMerchantRegister {
 
     event MerchantUpgraded(address indexed merchant);
     event MerchantRegistered(address indexed merchant);
-    event MerchantUpgraded(address indexed merchant);
 
     constructor(address _ownerContractAddress) {
         ownerContract = OwnerContract(_ownerContractAddress);
