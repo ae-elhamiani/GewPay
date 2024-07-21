@@ -15,7 +15,6 @@ contract PaymentContract is IPaymentContract {
     uint256 public constant BASIC_PLAN_TRANSACTION_LIMIT = 20;
     uint256 public constant BASIC_PLAN_VOLUME_LIMIT_USDT = 20;
 
-    event PaymentProcessed(address indexed client, address indexed merchant, uint256 storeId, address token, uint256 amount, uint256 fee, uint256 usdtEquivalent);
 
     constructor(address _ownerContractAddress, address _merchantRegisterAddress, address _storeContractAddress) {
         ownerContract = OwnerContract(_ownerContractAddress);

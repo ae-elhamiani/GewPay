@@ -9,6 +9,5 @@ import "./IStoreContract.sol";
 interface IPaymentContract {
     function processPayment(address merchant, uint256 storeId, address token, uint256 amount, uint256 usdtEquivalent) external payable;
 
-    event PaymentProcessed(address indexed client, address indexed merchant, uint256 storeId, address token, uint256 amount, uint256 fee);
-
+    event PaymentProcessed(address indexed client, address indexed merchant, uint256 storeId, address token, uint256 amount, uint256 fee, uint256 usdtEquivalent);
 }
