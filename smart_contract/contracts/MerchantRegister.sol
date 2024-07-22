@@ -52,7 +52,6 @@ contract MerchantRegister is IMerchantRegister {
     }
 
     function merchantInfo(address merchant) external view returns (bool isRegistered, bool isPremium){
-        require(merchants[merchant].isRegistered, "Merchant not registered");
         Merchant storage m = merchants[merchant];
         return (m.isRegistered, m.isPremium);
     }
