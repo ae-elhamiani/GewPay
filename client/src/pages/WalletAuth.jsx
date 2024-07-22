@@ -1,19 +1,14 @@
-// src/pages/WalletAuthh.js
 import React from 'react';
 import useWalletAuth from '../hooks/auth/useWalletAuth';
 
 const WalletAuth = () => {
-  const { isConnecting, error, address, connectWallet, handleInstallMetaMask } =
+  const { isConnecting, error, address, isMerchant, connectWallet, handleInstallMetaMask } =
     useWalletAuth();
 
   return (
     <div className="bg-white rounded-lg p-4 shadow-md">
       <h2 className="text-xl font-bold mb-4">Connect wallet</h2>
-      {address ? (
-        <div className="text-green-600 font-semibold">
-          <p>Wallet connected successfully: {address}</p>
-        </div>
-      ) : (
+      {!address ? (
         <button
           onClick={connectWallet}
           disabled={isConnecting}
@@ -21,6 +16,15 @@ const WalletAuth = () => {
         >
           {isConnecting ? 'Connecting...' : 'Connect wallet'}
         </button>
+      ) : isMerchant ? (
+        <div className="text-green-600 font-semibold">
+          <p>Merchant wallet connected successfully: {address}</p>
+        </div>
+      ) : (
+        <div className="text-blue-600 font-semibold">
+          <p>Wallet connected: {address}</p>
+          <p>Registering as merchant...</p>
+        </div>
       )}
       {error && <p className="text-red-500 mt-2">{error}</p>}
       <p className="text-sm text-gray-600 mt-2">
