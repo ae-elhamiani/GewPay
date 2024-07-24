@@ -1,0 +1,100 @@
+version: '3.8'  # You can keep this if you want, but it's optional in recent Docker Compose versions
+
+services:
+  consul:
+    image: consul:1.10.4
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    command: "agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    healthcheck:
+      test: ["CMD", "consul", "members"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s  # Added start period
+    networks:
+      - app-network
+
+
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - '4000:4000'
+    environment:
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    depends_on:
+      consul:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - app-network
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - '5001:5001'
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/auth_db
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    depends_on:
+      consul:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - app-network
+
+  merchant-service:
+    build: ./merchant-service
+    ports:
+      - '5002:5002'
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/merchant_db
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    depends_on:
+      consul:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - app-network
+
+volumes:
+  mongodb_data:  # This defines the mongodb_data volume
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,22 @@
+{
+    "name": "auth-service",
+    "version": "1.0.0",
+    "description": "Authentication microservice",
+    "main": "src/index.js",
+    "scripts": {
+      "start": "node src/index.js",
+      "dev": "nodemon src/index.js"
+    },
+    "dependencies": {
+      "express": "^4.17.1",
+      "mongoose": "^6.0.12",
+      "jsonwebtoken": "^8.5.1",
+      "bcryptjs": "^2.4.3",
+      "consul": "^0.40.0",
+      "dotenv": "^10.0.0",
+      "ethers": "^5.5.1"
+    },
+    "devDependencies": {
+      "nodemon": "^2.0.15"
+    }
+  }
