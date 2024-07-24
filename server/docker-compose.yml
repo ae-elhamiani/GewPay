@@ -15,8 +15,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s  # Added start period
-    networks:
-      - app-network
 
 
 
@@ -49,8 +47,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-    networks:
-      - app-network
 
   auth-service:
     build: ./auth-service
@@ -69,8 +65,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-    networks:
-      - app-network
 
   merchant-service:
     build: ./merchant-service
@@ -89,12 +83,10 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-    networks:
-      - app-network
 
 volumes:
   mongodb_data:  # This defines the mongodb_data volume
 
 networks:
-  app-network:
-    driver: bridge
+  default:
+    name: myapp-network

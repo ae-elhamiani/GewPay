@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
+import axios from 'axios';
 
 const MERCHANT_REGISTER_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
 const MERCHANT_REGISTER_ABI = [
@@ -29,6 +30,7 @@ const useWalletAuth = () => {
   const [address, setAddress] = useState('');
   const [isMerchant, setIsMerchant] = useState(false);
   const [isPremiumMerchant, setIsPremiumMerchant] = useState(false);
+  const [token, setToken] = useState('');
   const navigate = useNavigate();
 
   const checkMerchantStatus = async (address) => {
@@ -91,7 +93,7 @@ const useWalletAuth = () => {
         
         const isRegistered = await checkMerchantStatus(newAddress);
         if (!isRegistered) {
-          await registerMerchant();
+          await authenticateWithBackend(address);
         }
       } catch (error) {
         console.error('Failed to connect to MetaMask', error);
@@ -101,6 +103,37 @@ const useWalletAuth = () => {
       }
     } else {
       setError('MetaMask is not installed. Please install it to continue.');
+    }
+  };
+
+
+  const authenticateWithBackend = async (address) => {
+    try {
+      console.log("heleieieo");
+      // Request nonce from backend
+      const nonceResponse = await axios.post('http://localhost:5001/api/auth/nonce');
+      console.log(nonceResponse);
+      const nonce = nonceResponse.data.nonce;
+      console.log(nonce);
+
+
+      // Sign the nonce
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const signature = await signer.signMessage(`Please sign this nonce to authenticate: ${nonce}`);
+
+      // Verify signature with backend
+      const authResponse = await axios.post('http://localhost:5001/api/auth/verify', { address, signature, nonce });
+      const newToken = authResponse.data.token;
+      setToken(newToken);
+      localStorage.setItem('authToken', newToken);
+
+      // Check merchant status
+      // await checkMerchantStatus(newToken);
+      registerMerchant();
+    } catch (error) {
+      console.error('Authentication failed:', error);
+      setError(`Authentication failed: ${error.message}`);
     }
   };
 

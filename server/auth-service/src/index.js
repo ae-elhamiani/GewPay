@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const consul = require('consul');
@@ -7,6 +8,7 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 mongoose.set('strictQuery', false);
 

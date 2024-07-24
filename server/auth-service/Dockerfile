@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-ENV CONSUL_HOST=consul
-ENV CONSUL_PORT=8500
+
 EXPOSE 5001
+
 CMD ["npm", "start"]
