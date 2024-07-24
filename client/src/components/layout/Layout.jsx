@@ -1,16 +1,16 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import logo from '../../assets/GwePay.svg';  // Adjust the import path to your logo
+import logo from '../../assets/GwePay.svg'; 
 import Whale from '../common/Whale';
 
 const Layout = () => (
     <div className="min-h-screen bg-white flex flex-col relative overflow-hidden">
     <header className="w-full px-16 py-16 flex justify-start">
-      <img src={logo} alt="WEPAY" className="h-8" />
+      <img src={logo} alt="WEPAY" className="h-9" />
     </header>
     <main className="flex-grow flex items-center justify-between px-16 z-10">
-      <div className="w-1/2 max-w-md">
-        <Outlet /> {/* This is where the child route components will be rendered */}
+      <div className="w-2/3 max-w-md">
+        <Outlet /> 
       </div>
     </main>
     <Whale />

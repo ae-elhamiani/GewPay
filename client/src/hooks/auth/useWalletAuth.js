@@ -90,11 +90,7 @@ const useWalletAuth = () => {
         const newAddress = accounts[0];
         setAddress(newAddress);
         console.log('Wallet connected successfully:', newAddress);
-        
-        const isRegistered = await checkMerchantStatus(newAddress);
-        if (!isRegistered) {
-          await authenticateWithBackend(address);
-        }
+         await authenticateWithBackend(newAddress);
       } catch (error) {
         console.error('Failed to connect to MetaMask', error);
         setError(`Failed to connect wallet: ${error.message}`);
@@ -109,28 +105,34 @@ const useWalletAuth = () => {
 
   const authenticateWithBackend = async (address) => {
     try {
-      console.log("heleieieo");
-      // Request nonce from backend
-      const nonceResponse = await axios.post('http://localhost:5001/api/auth/nonce');
+      const nonceResponse = await axios.post('http://localhost:5001/api/auth/nonce', { address});
       console.log(nonceResponse);
       const nonce = nonceResponse.data.nonce;
       console.log(nonce);
+      console.log("hehehhehhehehehheheheh nadddddress");
 
+      console.log(address);     
+      console.log("hehehhehhehehehheheheh nadddddress");
 
-      // Sign the nonce
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const signature = await signer.signMessage(`Please sign this nonce to authenticate: ${nonce}`);
+      console.log(signature);
+      
+      const authResponse = await axios.post('http://localhost:5001/api/auth/verify', { address, signature});
+      const token = authResponse.data.token;
+      console.log(token);
+      setToken(token);
+      localStorage.setItem('authToken', token);
 
-      // Verify signature with backend
-      const authResponse = await axios.post('http://localhost:5001/api/auth/verify', { address, signature, nonce });
-      const newToken = authResponse.data.token;
-      setToken(newToken);
-      localStorage.setItem('authToken', newToken);
-
-      // Check merchant status
-      // await checkMerchantStatus(newToken);
-      registerMerchant();
+      const isRegistered = await checkMerchantStatus(address);
+      if (!isRegistered) {
+       registerMerchant();
+      }else{
+        navigate('/dashboard');
+      }
+    
+      
     } catch (error) {
       console.error('Authentication failed:', error);
       setError(`Authentication failed: ${error.message}`);

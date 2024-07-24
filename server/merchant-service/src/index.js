@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const consul = require('consul');
 const config = require('./config');
@@ -6,6 +7,7 @@ const merchantRoutes = require('./routes/merchantRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 app.use('/api/merchants', merchantRoutes);
