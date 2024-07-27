@@ -1,0 +1,10 @@
+smart_contract/.DS_Store
+smart_contract/node_modules
+smart_contract/.anima
+
+client/.DS_Store
+client/node_modules
+client/.anima
+
+.gitignor
+/server/.gitignor

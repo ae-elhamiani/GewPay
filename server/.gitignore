@@ -1,3 +1,11 @@
-node_modules
 .anima
 .env
+/node_modules
+/auth-service/.env
+/auth-service/node_modules
+/merchant-service/.env
+/merchant-service/node_modules
+/otp-service/node_modules
+/otp-service/.env
+/notification-service/node_modules
+/notification-service/.env
