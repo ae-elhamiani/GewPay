@@ -17,7 +17,6 @@ describe("MerchantRegister", function () {
       const MerchantRegister = await ethers.getContractFactory("MerchantRegister");
       merchantRegister = await MerchantRegister.deploy(await ownerContract.getAddress());
     
-      // Wait for both contracts to be mined
       await ownerContract.waitForDeployment();
       await merchantRegister.waitForDeployment();
     });
