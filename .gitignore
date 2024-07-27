@@ -6,5 +6,5 @@ client/.DS_Store
 client/node_modules
 client/.anima
 
-.gitignor
-/server/.gitignor
+.gitignore
+/server/.gitignore
