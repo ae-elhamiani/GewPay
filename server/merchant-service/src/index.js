@@ -1,16 +1,17 @@
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
 const consul = require('consul');
 const config = require('./config');
 const merchantRoutes = require('./routes/merchantRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swaggerConfig');
 
 const app = express();
-app.use(cors());
 
 app.use(express.json());
-app.use('/api/merchants', merchantRoutes);
+app.use('/', merchantRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use(errorHandler);
 mongoose.set('strictQuery', false);
 
@@ -28,7 +29,6 @@ mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: t
 
   app.listen(PORT, async () => {
     console.log(`Merchant service running on port ${PORT}`);
-    setTimeout(async () => {
     try {
       await consulClient.agent.service.register({
         name: 'merchant-service',
@@ -43,7 +43,6 @@ mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: t
     } catch (err) {
       console.error('Merchant Service Failed to register with Consul:', err);
     }
-}, 15000); // 15 seconds delay
 
   });
 app.get('/health', (req, res) => res.status(200).send('OK'));

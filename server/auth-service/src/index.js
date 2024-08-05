@@ -1,14 +1,14 @@
 const express = require('express');
-const cors = require('cors');
 const consul = require('consul');
 const config = require('./config');
 const redisClient = require('./utils/redisClient');
 const authRoutes = require('./routes/authRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swaggerConfig');
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
 
 // Connect to Redis
@@ -17,7 +17,8 @@ async function startServer() {
     await redisClient.connect();
     console.log('Connected to Redis');
 
-    app.use('/api/auth', authRoutes);
+    app.use('/', authRoutes);
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
     app.use(errorHandler);
 
     const consulClient = new consul({
@@ -30,7 +31,6 @@ async function startServer() {
 
     app.listen(PORT, async () => {
       console.log(`Auth service running on port ${PORT}`);
-      setTimeout(async () => {
         try {
           await consulClient.agent.service.register({
             name: 'auth-service',
@@ -45,7 +45,6 @@ async function startServer() {
         } catch (err) {
           console.error('Auth Service Failed to register with Consul:', err);
         }
-      }, 15000); // 15 seconds delay
     });
 
     app.get('/health', (req, res) => res.status(200).send('OK'));
