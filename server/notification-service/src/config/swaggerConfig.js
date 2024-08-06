@@ -4,9 +4,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Authentication Service API',
+      title: 'Notification Service API',
       version: '1.0.0',
-      description: 'API documentation for the Authentication Service',
+      description: 'API documentation for the Notification Service',
     },
   },
   apis: ['./src/routes/*.js'], 

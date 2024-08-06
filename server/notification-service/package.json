@@ -1,19 +1,24 @@
 {
-    "name": "notification-service",
-    "version": "1.0.0",
-    "description": "",
-    "main": "src/index.js",
-    "scripts": {
-      "start": "node src/index.js",
-      "dev": "nodemon src/index.js"
-    },
-    "dependencies": {
-      "consul": "^1.2.0",
-      "dotenv": "^10.0.0",
-      "express": "^4.17.1",
-      "mongoose": "^6.0.12"
-    },
-    "devDependencies": {
-      "nodemon": "^2.0.15"
-    }
+  "name": "notification-service",
+  "version": "1.0.0",
+  "description": "Notification microservice for email sending and management",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "consul": "^1.2.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.19.2",
+    "handlebars": "^4.7.7",
+    "helmet": "^4.6.0",
+    "mongoose": "^6.0.12",
+    "nodemailer": "^6.7.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
+}
