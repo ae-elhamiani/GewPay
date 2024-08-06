@@ -30,8 +30,10 @@ const proxyMiddleware = (serviceName) => {
 };
 
 router.use('/auth', proxyMiddleware('auth-service'));
-router.use('/merchants', proxyMiddleware('merchant-service'));
+router.use('/merchant', proxyMiddleware('merchant-service'));
 router.use('/notif', proxyMiddleware('notification-service'));
+router.use('/otp', proxyMiddleware('otp-service'));
+
 
 
 module.exports = router;

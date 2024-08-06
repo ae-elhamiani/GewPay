@@ -5,5 +5,7 @@ module.exports = {
   consulHost: process.env.CONSUL_HOST || 'consul',
   consulPort: process.env.CONSUL_PORT || 8500,
   authServiceName: 'auth-service',
-  merchantServiceName: 'merchant-service'
+  merchantServiceName: 'merchant-service',
+  notifServiceName: 'notif-service',
+  otpServiceName: 'otp-service'
 };
