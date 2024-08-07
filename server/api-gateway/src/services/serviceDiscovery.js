@@ -1,6 +1,6 @@
 const consul = require('consul');
 const config = require('../config');
-const consulClient = require('../consulClient');
+const consulClient = require('./consulClient');
 
 
 const getService = async (serviceName) => {
