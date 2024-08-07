@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
 import axios from 'axios';
+import { useAddress, useMetamask, useDisconnect, useSigner } from '@thirdweb-dev/react';
 
 const MERCHANT_REGISTER_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
 const MERCHANT_REGISTER_ABI = [
@@ -27,18 +28,26 @@ const MERCHANT_REGISTER_ABI = [
 const useWalletAuth = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState('');
-  const [address, setAddress] = useState('');
   const [isMerchant, setIsMerchant] = useState(false);
   const [isPremiumMerchant, setIsPremiumMerchant] = useState(false);
   const [token, setToken] = useState('');
   const navigate = useNavigate();
 
+  const address = useAddress();
+  const connectWithMetamask = useMetamask();
+  const disconnect = useDisconnect();
+  const signer = useSigner();
+
+  useEffect(() => {
+    if (address) {
+      authenticateWithBackend(address);
+    }
+  }, [address]);
+
   const checkMerchantStatus = async (address) => {
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
       const contract = new ethers.Contract(MERCHANT_REGISTER_ADDRESS, MERCHANT_REGISTER_ABI, signer);
-      
+
       console.log('Checking merchant status for address:', address);
 
       const result = await contract.merchantInfo(address);
@@ -48,10 +57,6 @@ const useWalletAuth = () => {
       setIsMerchant(isRegistered);
       setIsPremiumMerchant(isPremium);
       console.log(`Merchant status: Registered - ${isRegistered}, Premium - ${isPremium}`);
-
-      if (isRegistered) {
-        navigate('/more-info');
-      }
 
       return isRegistered;
     } catch (error) {
@@ -63,8 +68,6 @@ const useWalletAuth = () => {
 
   const registerMerchant = async () => {
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
       const contract = new ethers.Contract(MERCHANT_REGISTER_ADDRESS, MERCHANT_REGISTER_ABI, signer);
 
       console.log('Registering as merchant...');
@@ -74,91 +77,73 @@ const useWalletAuth = () => {
       console.log('Registration transaction confirmed');
 
       setIsMerchant(true);
-      navigate('/more-info');
+      navigate('/profile'); // Navigate to /profile after successful registration
     } catch (error) {
       console.error('Failed to register as merchant:', error);
       setError(`Failed to register as merchant: ${error.message}`);
     }
   };
 
-  const connectWallet = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      setIsConnecting(true);
-      setError('');
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const newAddress = accounts[0];
-        setAddress(newAddress);
-        console.log('Wallet connected successfully:', newAddress);
-         await authenticateWithBackend(newAddress);
-      } catch (error) {
-        console.error('Failed to connect to MetaMask', error);
-        setError(`Failed to connect wallet: ${error.message}`);
-      } finally {
-        setIsConnecting(false);
-      }
-    } else {
-      setError('MetaMask is not installed. Please install it to continue.');
-    }
-  };
-
-
   const authenticateWithBackend = async (address) => {
     try {
-      const nonceResponse = await axios.post('http://localhost:5001/api/auth/nonce', { address});
-      console.log(nonceResponse);
+      const nonceResponse = await axios.post('http://localhost:5001/api/auth/nonce', { address });
       const nonce = nonceResponse.data.nonce;
-      console.log(nonce);
-      console.log("hehehhehhehehehheheheh nadddddress");
 
-      console.log(address);     
-      console.log("hehehhehhehehehheheheh nadddddress");
+      if (!signer) {
+        throw new Error("Signer is not available");
+      }
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
       const signature = await signer.signMessage(`Please sign this nonce to authenticate: ${nonce}`);
       console.log(signature);
       
-      const authResponse = await axios.post('http://localhost:5001/api/auth/verify', { address, signature});
+      const authResponse = await axios.post('http://localhost:5001/api/auth/verify', { address, signature });
       const token = authResponse.data.token;
-      console.log(token);
       setToken(token);
       localStorage.setItem('authToken', token);
 
       const isRegistered = await checkMerchantStatus(address);
       if (!isRegistered) {
-       registerMerchant();
-      }else{
-        navigate('/dashboard');
+        await registerMerchant();
+      } else {
+        navigate('/profile'); // Navigate to /profile if the merchant is already registered
       }
-    
-      
     } catch (error) {
       console.error('Authentication failed:', error);
       setError(`Authentication failed: ${error.message}`);
     }
   };
 
+  const connectWallet = async () => {
+    setIsConnecting(true);
+    setError('');
+    try {
+      await connectWithMetamask();
+    } catch (error) {
+      console.error('Failed to connect to MetaMask', error);
+      setError(`Failed to connect wallet: ${error.message}`);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   useEffect(() => {
-    if (typeof window.ethereum !== 'undefined') {
+    const handleAccountsChanged = async (accounts) => {
+      if (accounts.length === 0) {
+        setError('Disconnected from MetaMask. Please connect again.');
+        navigate('/wallet');
+      } else {
+        const newAddress = accounts[0];
+        await checkMerchantStatus(newAddress);
+      }
+    };
+
+    if (window.ethereum) {
       window.ethereum.on('accountsChanged', handleAccountsChanged);
       return () => {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
       };
     }
-  }, []);
-
-  const handleAccountsChanged = async (accounts) => {
-    if (accounts.length === 0) {
-      setAddress('');
-      setError('Disconnected from MetaMask. Please connect again.');
-      navigate('/');
-    } else {
-      const newAddress = accounts[0];
-      setAddress(newAddress);
-      await checkMerchantStatus(newAddress);
-    }
-  };
+  }, [signer]);
 
   return {
     isConnecting,
@@ -167,6 +152,7 @@ const useWalletAuth = () => {
     isMerchant,
     isPremiumMerchant,
     connectWallet,
+    disconnect,
   };
 };
 
