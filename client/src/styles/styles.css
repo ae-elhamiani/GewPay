@@ -1,0 +1,35 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Your custom styles here */
+ .connect-wallet-button {
+    background-color: #7D3BEC !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    font-size: 17px !important;
+    cursor: pointer !important;
+  }
+  
+  .connect-wallet-container {
+    background-color: #7D3BEC !important;
+    border-radius: 10px;
+    padding: 5px 10px !important;
+    font-size: 20px !important;
+    cursor: pointer !important;
+    width: 40%;
+  }
+  
+ 
+  .wallet-icon {
+    margin-right: 10px;
+    color: white;
+  }
+  
+  /* Hide the Thirdweb branding */
+.thirdweb-connect-modal__footer {
+    display: none !important;
+  }
+  
