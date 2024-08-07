@@ -1,5 +1,5 @@
 const consul = require('consul');
-const config = require('./config');
+const config = require('../config');
 
 const consulClient = new consul({
   host: process.env.CONSUL_HOST || 'consul',

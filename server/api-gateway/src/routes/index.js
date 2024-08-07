@@ -30,16 +30,10 @@ const proxyMiddleware = (serviceName) => {
 };
 
 router.use('/auth', proxyMiddleware('auth-service'));
-router.use('/merchants', proxyMiddleware('merchant-service'));
+router.use('/merchant', proxyMiddleware('merchant-service'));
+router.use('/notif', proxyMiddleware('notification-service'));
+router.use('/otp', proxyMiddleware('otp-service'));
 
-router.get('/test-consul', async (req, res) => {
-  try {
-    const services = await getService('auth-service');
-    res.json({ services });
-  } catch (error) {
-    console.error('Error fetching services from Consul:', error);
-    res.status(500).json({ error: 'Failed to fetch services from Consul' });
-  }
-});
+
 
 module.exports = router;

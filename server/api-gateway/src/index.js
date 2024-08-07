@@ -1,11 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const consul = require('consul');
-const config = require('./config');
 const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
-const consulClient = require('./consulClient');
+const consulClient = require('./services/consulClient');
 
 
 const app = express();

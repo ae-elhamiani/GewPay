@@ -98,18 +98,20 @@ services:
       retries: 3
       start_period: 30s
 
-  notoification-service:
-    build: ./notoification-service
+  notification-service:
+    build: ./notification-service
     ports:
       - '5003:5003'
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/notoification_db
+      - MONGO_URI=mongodb://mongodb:27017/notification_db
       - CONSUL_HOST=consul
       - CONSUL_PORT=8500
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=ae.elhamiani@gmail.com
+      - SMTP_PASS=ehci khce cibu dfwi
     depends_on:
       consul:
-        condition: service_healthy
-      mongodb:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5003/health"]
@@ -125,8 +127,12 @@ services:
     environment:
       - CONSUL_HOST=consul
       - CONSUL_PORT=8500
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       consul:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5004/health"]
@@ -134,7 +140,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-
 
 volumes:
   mongodb_data:

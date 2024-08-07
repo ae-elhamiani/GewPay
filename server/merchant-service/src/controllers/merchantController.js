@@ -1,37 +1,101 @@
 const merchantService = require('../services/merchantService');
+const otpService = require('../services/otpService');
+const notificationService = require('../services/notificationService');
+const { RegistrationStep } = require('../models/Merchant');
 
 exports.registerMerchant = async (req, res, next) => {
   try {
     const { address } = req.body;
     const merchant = await merchantService.registerMerchant(address);
-    res.status(201).json(merchant);
+    res.status(201).json({ merchantId: merchant._id, step: merchant.registrationStep });
   } catch (error) {
     next(error);
   }
 };
 
-exports.getMerchantInfo = async (req, res, next) => {
+exports.updateProfile = async (req, res, next) => {
   try {
-    const { address } = req.params;
-    const merchant = await merchantService.getMerchantInfo(address);
+    const { merchantId } = req.params;
+    const { image, username } = req.body;
+    const updatedMerchant = await merchantService.updateProfile(merchantId, { image, username });
+    res.status(200).json({ step: updatedMerchant.registrationStep });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.addEmail = async (req, res, next) => {
+  try {
+    const { merchantId } = req.params;
+    const { email } = req.body;
+    const merchant = await merchantService.addEmail(merchantId, email);
+    const otp = await otpService.generateOtp(merchant.secretKey);
+    await notificationService.sendEmail(email, 'EMAIL_VERIFICATION', { codeOtpEmail: otp });
+    res.status(200).json({ step: merchant.registrationStep });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.verifyEmail = async (req, res, next) => {
+  try {
+    const { merchantId } = req.params;
+    const { otp } = req.body;
+    const merchant = await merchantService.getMerchantById(merchantId);
+    const isValid = await otpService.verifyOtp(merchant.secretKey, otp);
+    if (isValid) {
+      const updatedMerchant = await merchantService.verifyEmail(merchantId);
+      res.status(200).json({ step: updatedMerchant.registrationStep });
+    } else {
+      res.status(400).json({ error: 'Invalid OTP' });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.addPhone = async (req, res, next) => {
+  try {
+    const { merchantId } = req.params;
+    const { phone } = req.body;
+    const merchant = await merchantService.addPhone(merchantId, phone);
+    const otp = await otpService.generateOtp(merchant.secretKey);
+    await notificationService.sendSMS(phone, 'PHONE_VERIFICATION', { codeOtpEmail: otp });
+    res.status(200).json({ step: merchant.registrationStep });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.verifyPhone = async (req, res, next) => {
+  try {
+    const { merchantId } = req.params;
+    const { otp } = req.body;
+    const merchant = await merchantService.getMerchantById(merchantId);
+    const isValid = await otpService.verifyOtp(merchant.secretKey, otp);
+    if (isValid) {
+      const updatedMerchant = await merchantService.verifyPhone(merchantId);
+      res.status(200).json({ step: updatedMerchant.registrationStep });
+    } else {
+      res.status(400).json({ error: 'Invalid OTP' });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.login = async (req, res, next) => {
+  try {
+    const { address } = req.body;
+    const merchant = await merchantService.getMerchantByAddress(address);
     if (!merchant) {
-      return res.status(404).json({ message: 'Merchant not found' });
+      return res.status(404).json({ error: 'Merchant not found' });
     }
-    res.json(merchant);
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.updateMerchantProfile = async (req, res, next) => {
-  try {
-    const { address } = req.params;
-    const updateData = req.body;
-    const updatedMerchant = await merchantService.updateMerchantProfile(address, updateData);
-    if (!updatedMerchant) {
-      return res.status(404).json({ message: 'Merchant not found' });
+    if (merchant.registrationStep === RegistrationStep.COMPLETE) {
+      res.status(200).json({ redirect: '/dashboard' });
+    } else {
+      res.status(200).json({ step: merchant.registrationStep });
     }
-    res.json(updatedMerchant);
   } catch (error) {
     next(error);
   }
