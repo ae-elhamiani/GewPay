@@ -15,6 +15,16 @@ export default defineConfig({
     }),
     svgr(),
   ],
+  esbuild: {
+    loader: 'jsx',
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
+  },
   define: {
     'process.env': {},
     global: 'globalThis',

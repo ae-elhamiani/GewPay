@@ -4,7 +4,7 @@ import logo from '../../assets/GwePay.svg'; // Adjust the import path to your lo
 const Logo = () => {
   return (
     <>
-      <img src={logo} alt="WEPAY" className="h-8" />
+      <img src={logo} alt="WEPAY" className="h-10" />
     </>
   );
 };

@@ -11,6 +11,11 @@ module.exports = {
       fontSize: {
         'xxl': '43px',// Custom xxlarge font size
       },
+      colors: {
+        'mooove': 'rgba(66, 34, 221, 0.3)',
+        'mooove2': 'rgba(66, 34, 221, 0.22)',
+
+      },
     },
   },
   plugins: [],

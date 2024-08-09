@@ -1,21 +1,17 @@
 import React, { useEffect, useRef } from 'react';
-import WhaleSVG from '../../assets/whale.svg';
+import WhaleSVG from '../../assets/whale.svg?raw';
 import { gsap } from 'gsap';
 import purple from '../../assets/purple-BG.svg';
-import '../styles/whale.css'
 
-const Whale = ({ onDotClick }) => {
-    const svgRef = useRef(null);
+const Whale = () => {
+    const containerRef = useRef(null);
 
-    const handleClick = (event) => {
-        const rect = event.target.getBoundingClientRect();
-        onDotClick(rect.left, rect.top);
-      };
-      
     useEffect(() => {
-        const svg = svgRef.current;
-        const paths = svg.querySelectorAll('path');
-        const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+      const container = containerRef.current;
+      container.innerHTML = WhaleSVG;
+      const svg = container.querySelector('svg');
+      const paths = svg.querySelectorAll('path');
+      const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
         function movePaths() {
             paths.forEach(path => {
@@ -65,9 +61,9 @@ const Whale = ({ onDotClick }) => {
         <div style={{
             backgroundImage: `url(${purple})`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center'
+            backgroundPosition: 'center',
         }} className="absolute top-0 right-0 w-2/3 h-full">
-            <img src={WhaleSVG} ref={svgRef} className="w-full h-full" />
+            <div ref={containerRef} className="w-full h-full" />
 
 
         </div>
@@ -75,3 +71,7 @@ const Whale = ({ onDotClick }) => {
 }
 
 export default Whale;
+
+
+
+

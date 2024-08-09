@@ -6,10 +6,10 @@ import reportWebVitals from './reportWebVitals';
 import { ThirdwebProvider, ChainId  } from '@thirdweb-dev/react';
 import { BrowserRouter } from 'react-router-dom';
 
-const activeChainId = ChainId.Mainnet; // or whichever chain you want to use
+const activeChainId = ChainId.Mainnet; 
 const customTheme = {
   colors: {
-    modalBg: "rgba(200, 199, 200, 0.15)", // #D0C7F7 with 85% opacity
+    modalBg: "rgba(200, 199, 200, 0.15)", 
   },
 };
 

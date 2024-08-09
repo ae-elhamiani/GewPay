@@ -9,7 +9,7 @@ import PhoneOTP from './pages/PhoneOTP';
 import Email from './pages/Email';
 import './index.css';
 
-import { ProfileProvider } from './contexts/profileContext';
+import { ProfileProvider } from './hooks/ProfileProvider';
 import Profile from './pages/Profile';
 import EmailOTP from './pages/EmailOTP';
 
