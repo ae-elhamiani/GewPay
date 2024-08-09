@@ -15,8 +15,7 @@ exports.registerMerchant = async (req, res, next) => {
 
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { merchantId } = req.params;
-    const { image, username } = req.body;
+    const { image, username,merchantId } = req.body;
     const updatedMerchant = await merchantService.updateProfile(merchantId, { image, username });
     res.status(200).json({ step: updatedMerchant.registrationStep });
   } catch (error) {
@@ -26,8 +25,7 @@ exports.updateProfile = async (req, res, next) => {
 
 exports.addEmail = async (req, res, next) => {
   try {
-    const { merchantId } = req.params;
-    const { email } = req.body;
+    const { email,merchantId } = req.body;
     const merchant = await merchantService.addEmail(merchantId, email);
     const otp = await otpService.generateOtp(merchant.secretKey);
     await notificationService.sendEmail(email, 'EMAIL_VERIFICATION', { codeOtpEmail: otp });
@@ -39,8 +37,7 @@ exports.addEmail = async (req, res, next) => {
 
 exports.verifyEmail = async (req, res, next) => {
   try {
-    const { merchantId } = req.params;
-    const { otp } = req.body;
+    const { otp ,merchantId} = req.body;
     const merchant = await merchantService.getMerchantById(merchantId);
     const isValid = await otpService.verifyOtp(merchant.secretKey, otp);
     if (isValid) {
@@ -56,8 +53,7 @@ exports.verifyEmail = async (req, res, next) => {
 
 exports.addPhone = async (req, res, next) => {
   try {
-    const { merchantId } = req.params;
-    const { phone } = req.body;
+    const { phone,merchantId } = req.body;
     const merchant = await merchantService.addPhone(merchantId, phone);
     const otp = await otpService.generateOtp(merchant.secretKey);
     await notificationService.sendSMS(phone, 'PHONE_VERIFICATION', { codeOtpEmail: otp });
@@ -69,8 +65,7 @@ exports.addPhone = async (req, res, next) => {
 
 exports.verifyPhone = async (req, res, next) => {
   try {
-    const { merchantId } = req.params;
-    const { otp } = req.body;
+    const { otp,merchantId } = req.body;
     const merchant = await merchantService.getMerchantById(merchantId);
     const isValid = await otpService.verifyOtp(merchant.secretKey, otp);
     if (isValid) {

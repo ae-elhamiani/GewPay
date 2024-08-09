@@ -7,29 +7,20 @@
  .connect-wallet-button {
     background-color: #7D3BEC !important;
     color: white !important;
+    box-shadow: 0 5px 9px rgba(0, 0, 0, 0.4)!important;
     border: none !important;
     padding: 10px 20px !important;
     font-size: 17px !important;
     cursor: pointer !important;
+    border-radius: 10px !important;
   }
-  
-  .connect-wallet-container {
-    background-color: #7D3BEC !important;
-    border-radius: 10px;
-    padding: 5px 10px !important;
-    font-size: 20px !important;
-    cursor: pointer !important;
-    width: 40%;
-  }
-  
- 
-  .wallet-icon {
-    margin-right: 10px;
-    color: white;
+  .connect-wallet-button:hover {
+    background: linear-gradient(234.07deg, #4122dda4 -4.19%, rgba(243, 16, 145, 0.45) 167.36%)!important;
+    box-shadow: 0 5px 9px rgba(0, 0, 0, 0.4)!important;
   }
   
   /* Hide the Thirdweb branding */
 .thirdweb-connect-modal__footer {
     display: none !important;
-  }
+}
   

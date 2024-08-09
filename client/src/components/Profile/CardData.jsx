@@ -1,13 +1,11 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useProfile } from '../../contexts/profileContext';
+import React, { useRef, useEffect } from 'react';
+import { useProfile } from '../../hooks/ProfileProvider';
 import useWalletAuth from '../../hooks/auth/useWalletAuth';
-import bgImage from '../../assets/1.png';
 
 
 const CardData = ({isVisible}) => {
-  const { name, uploadedImage, country, email, avatarSvg } = useProfile();
+  const { name, uploadedImage, businessActivity, email, showCardData } = useProfile();
   const { address: walletAddress } = useWalletAuth();
-  const { showCardData } = useProfile();
   const cardRef = useRef(null);
 
   
@@ -30,60 +28,63 @@ const CardData = ({isVisible}) => {
   }
 
   return (
-    <div className=" relative mt-12 ml-12 w-96 " ref={cardRef}>
-      {/* Blurred background */}
-      <div className="absolute inset-0 rounded-3xl opacity-75 blur-sm   "></div>
+<div className="relative mb-12 ml-28 w-96 min-h-[500px]" ref={cardRef}>
+  {/* Blurred background */}
+  <div className="absolute inset-0 rounded-3xl opacity-75 blur-sm"></div>
 
-      {/* Card content */}
-      <div className="relative bg-opacity-45 backdrop-blur-sm rounded-3xl shadow-xl p-8 overflow-hidden bg-violet-200 ">
-        <div className="mb-6">
-          <div className="w-32 h-32 mx-auto relative">
-            <div className="absolute inset-0 bg-white rounded-full shadow-lg "></div>
-            <div className="relative w-full h-full border-solid border-2 border-white   opacity-100 rounded-full overflow-hidden ">
-              {uploadedImage ? (
-                <img
-                  src={uploadedImage}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <img
-                src="https://api.dicebear.com/9.x/rings/svg?seed=Samantha"
-                alt="avatar" />
-              )}
-            </div>
-          </div>
-
-          <h1 className="text-center text-3xl font-bold text-gray-900 my-8">
-            {name || (
-              <div className="h-3 bg-violet-400 rounded-full w-full"></div>
-            )}
-          </h1>
-
-          <div className="border-b border-black my-4"></div>
-
-          <div className="text-center text-lg font-semibold text-gray-800 my-4">
-            {formattedWalletAddress ? (
-              formattedWalletAddress
-            ) : (
-              <div className="h-3 bg-violet-400 rounded-full w-full"></div>
-            )}
-          </div>
-
-          <div className="text-center text-lg font-semibold text-gray-800 mb-4">
-            {country || (
-              <div className="h-3 bg-violet-400 rounded-full w-full"></div>
-            )}
-          </div>
-
-          <div className="text-center text-lg font-semibold text-gray-800 mb-4">
-            {email || (
-              <div className="h-3 bg-violet-400 rounded-full w-full"></div>
-            )}
-          </div>
+  {/* Card content */}
+  <div className="relative bg-opacity-45 backdrop-blur-sm rounded-3xl shadow-xl p-8 overflow-hidden bg-violet-200  ml-5 min-h-[500px]">
+    <div className="mb-6 ">
+      <div className="w-32 h-32 mt-5 mx-auto relative ">
+        <div className="absolute inset-0 bg-white rounded-full shadow-lg"></div>
+        <div className="relative w-full h-full border-solid border-8 border-violet-300 opacity-100 rounded-full overflow-hidden ">
+          {uploadedImage ? (
+            <img
+              src={uploadedImage}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <img
+              src="https://raw.githubusercontent.com/Volosh1n/github-avatars/master/examples/image.png"
+              alt="avatar"
+            />
+          )}
         </div>
       </div>
+
+      <h1 className="text-center text-3xl font-bold text-gray-900 my-8 mt-12">
+        {name || (
+          <div className="h-4 bg-violet-400 rounded w-full"></div>
+        )}
+      </h1>
+
+      <div className=" h- border-b border-mooove "></div>
+
+      <div className=" text-center text-lg font-semibold text-gray-800 my-4">
+        {formattedWalletAddress ? (
+          formattedWalletAddress
+        ) : (
+          <div className="h-4 bg-violet-400 rounded w-full"></div>
+        )}
+      </div>
+
+      <div className="text-center text-lg font-semibold text-gray-800 mb-4">
+        {businessActivity || (
+          <div className="h-4 bg-violet-400 rounded w-full"></div>
+        )}
+      </div>
+
+      <div className="text-center text-lg font-semibold text-gray-800 mb-4">
+        {email || (
+          <div className="h-4 bg-violet-400 rounded w-full"></div>
+        )}
+      </div>
     </div>
+  </div>
+</div>
+
+
   );
 };
 

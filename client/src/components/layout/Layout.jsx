@@ -1,10 +1,10 @@
+// src/components/layout/Layout.jsx
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Whale from '../common/Whale';
 import CardData from '../Profile/CardData';
-import { useProfile } from '../../contexts/profileContext';
+import { useProfile } from '../../hooks/ProfileProvider';
 import Logo from '../common/Logo';
-import RegistrationButton from '../common/RegistrationButton';
 
 const Layout = () => {
   const location = useLocation();
@@ -19,10 +19,6 @@ const Layout = () => {
     '/verify-phone-otp',
   ];
 
-  const handleDotClick = () => {
-    setIsCardVisible(true);
-  };
-
   useEffect(() => {
     if (routesWithCard.includes(location.pathname)) {
       setShowCardData(true);
@@ -32,7 +28,7 @@ const Layout = () => {
   }, [location.pathname, setShowCardData]);
 
   return (
-    <div className="min-h-screen bg-[url('/Users/abdo/Desktop/GWEPay/client/src/assets/teal2.png')] bg-cover flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-white flex flex-col relative overflow-hidden">
       <header className="w-full px-16 py-16 flex justify-start">
         <Logo />
       </header>
@@ -46,8 +42,7 @@ const Layout = () => {
           </div>
         )}
       </main>
-      <Whale onDotClick={handleDotClick} />
-      
+      <Whale />
       <footer className="py-4 px-16 text-sm text-gray-500 z-10">
         Created by the Gwenod Team © 2024
       </footer>

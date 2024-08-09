@@ -1,9 +1,24 @@
+// src/pages/Email.jsx
 import React from 'react';
-import useEmail from '../hooks/auth/useEmail';
+import { useProfile } from '../hooks/ProfileProvider';
 import { useNavigate } from 'react-router-dom';
 
 const Email = () => {
-  const { email, setEmail, message, isLoading, handleSendOTP } = useEmail();
+  const { email, setEmail, message, isLoading, setIsLoading, setMessage } = useProfile();
+  const navigate = useNavigate();
+
+  const handleSendOTP = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage('');
+
+    // Simulate sending OTP
+    setTimeout(() => {
+      setIsLoading(false);
+      setMessage('Verification code sent. Please check your email.');
+      navigate('/verify-email-otp');
+    }, 1500);
+  };
 
   return (
     <div>
@@ -30,15 +45,14 @@ const Email = () => {
         <button
           type="submit"
           className="w-2/3 bg-violet-600 text-white py-2 px-4 mt-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-           disabled={isLoading}
-          onClick={useNavigate('/verify-email-otp')}
+          disabled={isLoading}
         >
           {isLoading ? 'Sending...' : 'Send verification code'}
         </button>
         {message && (
           <p
             className={`mt-4 ${
-              message.includes('sent') ? 'text-green-500' : 'text-green-500'
+              message.includes('sent') ? 'text-green-500' : 'text-red-500'
             }`}
           >
             {message}
