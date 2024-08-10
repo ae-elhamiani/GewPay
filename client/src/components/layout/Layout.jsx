@@ -44,7 +44,7 @@ const Layout = () => {
       </main>
       <Whale />
       <footer className="py-4 px-16 text-sm text-gray-500 z-10">
-        Created by the Gwenod Team © 2024
+        Created by the Gwepay Team © 2024
       </footer>
     </div>
   );
