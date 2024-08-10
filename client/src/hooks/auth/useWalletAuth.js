@@ -4,7 +4,7 @@ import { useAddress, useDisconnect, useSigner, useMetamask, useConnectionStatus,
 import { ethers } from 'ethers';
 import { authService } from '../../services/authService';
 
-const MERCHANT_REGISTER_ADDRESS = '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82';
+const MERCHANT_REGISTER_ADDRESS = '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE';
 const MERCHANT_REGISTER_ABI = [
   {
     inputs: [{ name: "merchant", type: "address" }],
