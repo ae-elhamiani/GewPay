@@ -1,7 +1,7 @@
 .card-data {
   position: relative;
   padding: 3px;
-  border-radius: 10px;
+  border-radius: 12px;
   background-size: 200% 200%;
   animation: gradientBorder 3s ease infinite;
 

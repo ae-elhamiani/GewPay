@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Whale from '../common/Whale';
 import CardData from '../Profile/CardData';
-import { useProfile } from '../../hooks/ProfileProvider';
+import { useProfileContext } from '../../hooks/ProfileProvider';
 import Logo from '../common/Logo';
 
 const Layout = () => {
   const location = useLocation();
-  const { showCardData, setShowCardData } = useProfile();
+  const { showCardData, setShowCardData } = useProfileContext();
   const [isCardVisible, setIsCardVisible] = useState(false);
 
   const routesWithCard = [

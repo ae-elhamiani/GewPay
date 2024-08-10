@@ -1,44 +1,62 @@
-// src/hooks/usePhoneOTP.js
-import { useState } from 'react';
-import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useProfileContext } from '../ProfileProvider';
+import { authService } from '../../services/authService';
 
 const usePhoneOTP = () => {
+  const { phone } = useProfileContext();
   const [otp, setOtp] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
   const navigate = useNavigate();
-  const location = useLocation();
-  const phone = location.state?.phone || '';
+
+  useEffect(() => {
+    let timer;
+    if (resendCountdown > 0) {
+      timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCountdown]);
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
-    if (!otp || otp.length !== 6) {
-      setMessage("Please enter the complete OTP.");
-      return;
-    }
     setIsLoading(true);
+    setMessage('');
+
     try {
-      const response = await axios.post('http://localhost:5001/phone/verify-phone-otp', { phone, otp });
-      setMessage(response.data.message);
-      if (response.data.success) {
-        toast.success('OTP verified successfully! Redirecting to profile...', {
-          position: toast.POSITION.TOP_CENTER
-        });
-        setTimeout(() => navigate('/profile'), 3000);
-      } else {
-        setMessage('Invalid OTP. Please try again.');
-        toast.error('Invalid OTP. Please try again.', {
-          position: toast.POSITION.TOP_CENTER
-        });
+      const address = localStorage.getItem('address');
+      if (!address) {
+        throw new Error('Wallet address not found');
       }
+
+      const response = await authService.verifyPhoneOTP({ otp, address });
+      localStorage.setItem('registrationStep', response.data.step);
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      setMessage('Failed to verify OTP. Please try again.');
-      toast.error('Failed to verify OTP. Please try again.', {
-        position: toast.POSITION.TOP_CENTER
-      });
+      setMessage('Invalid OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resendCode = async () => {
+    setIsLoading(true);
+    setMessage('');
+
+    try {
+      const address = localStorage.getItem('address');
+      if (!address) {
+        throw new Error('Wallet address not found');
+      }
+
+      await authService.addPhone({ phone, address });
+      setMessage('Verification code resent. Please check your phone.');
+      setResendCountdown(60);
+    } catch (error) {
+      console.error('Error resending OTP:', error);
+      setMessage('Failed to resend verification code. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -51,6 +69,8 @@ const usePhoneOTP = () => {
     isLoading,
     phone,
     handleVerifyOTP,
+    resendCode,
+    resendCountdown
   };
 };
 

@@ -1,43 +1,48 @@
-// src/hooks/usePhoneRegistration.js
 import { useState } from 'react';
-import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useProfileContext } from '../ProfileProvider';
+import { authService } from '../../services/authService';
 
 const usePhone = () => {
-  const [phone, setPhone] = useState('');
+  const { phone } = useProfileContext();
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const walletAddress = location.state?.walletAddress || '';
 
-  const handleRegisterPhone = async (e) => {
-    e.preventDefault();
+  const handleSendOTP = async () => {
     if (!phone) {
       setMessage('Please enter a valid phone number.');
       return;
     }
     setIsLoading(true);
+    setMessage('');
+
     try {
-      const response = await axios.post('http://localhost:5001/phone/register-phone', { phone, walletAddress });
-      setMessage(response.data.message);
-      if (response.data.success) {
-        setTimeout(() => navigate('/verify-phone-otp', { state: { phone, walletAddress } }), 2000);
+      const address = localStorage.getItem('address');
+      if (!address) {
+        throw new Error('Wallet address not found');
+      }
+
+      const response = await authService.addPhone({ phone, address });
+      if (response.data.step) {
+        localStorage.setItem('registrationStep', response.data.step);
+        setMessage('Verification code sent. Please check your phone.');
+        setTimeout(() => navigate('/verify-phone-otp'), 2000);
+      } else {
+        setMessage('Failed to send verification code. Please try again.');
       }
     } catch (error) {
       console.error('Error registering phone:', error);
-      setMessage('Failed to register phone. Please try again.');
+      setMessage('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return {
-    phone,
-    setPhone,
     message,
     isLoading,
-    handleRegisterPhone,
+    handleSendOTP,
   };
 };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ConnectWallet } from '@thirdweb-dev/react';
 import useWalletAuth from "../hooks/auth/useWalletAuth";
 import "../styles/styles.css";
 
@@ -11,16 +12,17 @@ function Wallet() {
         <h1 className="text-3xl font-bold mb-5">
           Connect your wallet to get started!
         </h1>
-        
+      
         <div className="relative bg-opacity-45 backdrop-blur-sm shadow-xl p-8 overflow-hidden bg-violet-200 rounded-2xl shadow-lg p-8 max-w-md w-full">
           <p className="text-gray-600 mb-4">Please connect your wallet</p>
           {connectionStatus !== "connected" ? (
-            <button
-              onClick={connectWallet}
-              className="w-full bg-violet-600 text-white py-2 px-4 rounded-md hover:bg-violet-700 transition duration-300"
-            >
-              Connect Wallet
-            </button>
+            <ConnectWallet
+            showThirdwebBranding={false}
+            modalSize={'compact'}
+            className="connect-wallet-button"
+            onClick={connectWallet}
+          />
+    
           ) : (
             <div className="text-blue-600 font-semibold">
               <p>{isMerchant ? 'Merchant wallet connected successfully' : 'Registering as merchant...'}</p>

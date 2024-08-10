@@ -3,7 +3,6 @@ const crypto = require('crypto');
 
 const RegistrationStep = {
   INITIAL: 'INITIAL',
-  PROFILE: 'PROFILE',
   EMAIL: 'EMAIL',
   VERIFY_EMAIL: 'VERIFY_EMAIL',
   PHONE: 'PHONE',
@@ -12,10 +11,11 @@ const RegistrationStep = {
 };
 
 const merchantSchema = new mongoose.Schema({
-  address: { type: String, required: true, unique: true },
+  _id: { type: String, required: true }, // This will be the Ethereum address
   secretKey: { type: String, default: () => crypto.randomBytes(32).toString('base64') },
   image: String,
   username: String,
+  businessActivity: String,
   email: String,
   emailVerified: { type: Boolean, default: false },
   phone: String,

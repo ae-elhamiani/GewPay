@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAddress, useDisconnect, useSigner, useMetamask, useConnectionStatus } from '@thirdweb-dev/react';
+import { useAddress, useDisconnect, useSigner, useMetamask, useConnectionStatus, useNetwork } from '@thirdweb-dev/react';
 import { ethers } from 'ethers';
 import { authService } from '../../services/authService';
 
-const MERCHANT_REGISTER_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+const MERCHANT_REGISTER_ADDRESS = '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82';
 const MERCHANT_REGISTER_ABI = [
   {
     inputs: [{ name: "merchant", type: "address" }],
@@ -30,6 +30,8 @@ const useWalletAuth = () => {
   const [isMerchant, setIsMerchant] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isPremiumMerchant, setIsPremiumMerchant] = useState(false);
+  const { chain } = useNetwork();
 
 
   
@@ -42,18 +44,28 @@ const useWalletAuth = () => {
 
   const checkMerchantStatus = useCallback(async (address) => {
     try {
+      console.log('Checking merchant status...');
+      console.log('Contract address:', MERCHANT_REGISTER_ADDRESS);
+      console.log('Current network:', chain?.name);
+      
       const contract = new ethers.Contract(MERCHANT_REGISTER_ADDRESS, MERCHANT_REGISTER_ABI, signer);
-      const [isRegistered] = await contract.merchantInfo(address);
+      const [isRegistered, isPremium] = await contract.merchantInfo(address);
+      console.log('Merchant status:', { isRegistered, isPremium });
       setIsMerchant(isRegistered);
+      setIsPremiumMerchant(isPremium);
       return isRegistered;
     } catch (error) {
       console.error('Failed to check merchant status:', error);
-      setError('Failed to verify merchant status. Please try again.');
+      if (error.code === 'CALL_EXCEPTION') {
+        setError('Failed to interact with the contract. Please ensure you are on the correct network.');
+      } else {
+        setError('Failed to verify merchant status. Please try again.');
+      }
       return false;
     }
-  }, [signer]);
+  }, [signer, chain]);
 
-  const registerMerchant = useCallback(async () => {
+  const registerMerchant = useCallback(async (address) => {
     try {
       const contract = new ethers.Contract(MERCHANT_REGISTER_ADDRESS, MERCHANT_REGISTER_ABI, signer);
       const tx = await contract.registerMerchant();
@@ -62,7 +74,6 @@ const useWalletAuth = () => {
       const response = await authService.registerMerchant(address);
       const { merchantId, step } = response.data;
 
-      localStorage.setItem('merchantId', merchantId);
       localStorage.setItem('registrationStep', step);
       
       setIsMerchant(true);
@@ -76,7 +87,7 @@ const useWalletAuth = () => {
   const authenticateWithBackend = useCallback(async (address) => {
     if (isAuthenticating) return;
     setIsAuthenticating(true);
-    try {
+    try {      
       console.log("hello backend");
       const nonceResponse = await authService.getNonce(address);
       const nonce = nonceResponse.data.nonce;
@@ -90,14 +101,17 @@ const useWalletAuth = () => {
       const authResponse = await authService.verifySignature(address, signature);
       const token = authResponse.data.token;
       localStorage.setItem('authToken', token);
-      console.log("part token end");
+      localStorage.setItem('address', address);
+      console.log("saved localStorage");
       console.log(token);
+      console.log(address);
 
       const isRegistered = await checkMerchantStatus(address);
+
       if (isRegistered) {
         navigate('/profile');
       } else {
-        await registerMerchant();
+        await registerMerchant(address);
       }
     } catch (error) {
       console.error('Authentication failed:', error);
@@ -134,13 +148,15 @@ const useWalletAuth = () => {
     localStorage.removeItem('merchantId');
     localStorage.removeItem('registrationStep');
     setIsMerchant(false);
+    navigate('/wallet');
   }, [disconnect]);
 
   useEffect(() => {
     if (address && connectionStatus === "connected" && !localStorage.getItem('authToken') && !isAuthenticating) {
       authenticateWithBackend(address);
     } else if (address && connectionStatus === "connected" && localStorage.getItem('authToken')) {
-      navigate('/profile');
+      console.log('Navigating to /profile');
+      // navigate('/profile');
     }
   }, [address, connectionStatus, authenticateWithBackend, navigate, isAuthenticating]);
 
@@ -148,6 +164,7 @@ const useWalletAuth = () => {
   useEffect(() => {
     if (connectionStatus === "disconnected") {
       disconnectWallet();
+
     }
   }, [connectionStatus, disconnectWallet]);
 
