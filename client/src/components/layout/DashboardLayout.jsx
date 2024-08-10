@@ -153,7 +153,7 @@ const DashboardLayout = () => {
 
         {/* Footer */}
         <footer className={`${isDarkMode ? 'text-white' : 'text-gray-600'} py-4 px-6`}>
-          <p className="text-center">&copy; 2024 Your Company. All rights reserved.</p>
+          <p className="text-center">&copy;         Created by the Gwepay Team © 2024          </p>
         </footer>
       </div>
     </div>
