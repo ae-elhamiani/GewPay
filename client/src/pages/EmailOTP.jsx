@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 
 const EmailOTP = () => {
   const navigate = useNavigate();
-
   const {
     otp,
     setOtp,
@@ -18,51 +17,64 @@ const EmailOTP = () => {
   } = useEmailOTP();
 
   return (
-    <div className="flex flex-col justify-start px-4">
-      <div className="w-full max-w-md space-y-6">
-      <h1 className="text-xxl font-extrabold text-violet-600">Verification code sent</h1>
-        <p className="text-gray-600 text-xl ">
+    <div className="flex flex-col w-3/4">
+      <main className="flex-grow container mx-auto px-4">
+        <h1 className="text-2xl font-bold mb-8">
+          Verification code sent - Let's make sure it's really you!
+        </h1>
+
+        <p className="text-gray-600 mb-8">
           Please enter the verification code we've just sent to your email box.
         </p>
-        <div className="flex justify-between items-center">
-          <span className="text-black font-bold">{email} abdssamadbendahman@gmail.com</span>
-          <button className="text-violet-600 hover:underline font-bold " onClick={() => {navigate('/register-email')}}>
+        {message && (
+          <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {message}
+          </div>
+        )}
+        <div className="flex justify-between items-center mb-6">
+          <span className="text-black font-bold">{email}</span>
+          <button 
+            className="text-violet-600 hover:underline font-bold"
+            onClick={() => navigate('/register-email')}
+          >
             Change Email
           </button>
         </div>
-        <form onSubmit={handleVerifyOTP}>
-          <div className="mb-4">
-            <label className="block text-gray-600 text-sm font-bold mb-2" htmlFor="otp">
+
+
+        <form onSubmit={handleVerifyOTP} className="space-y-6 rounded-lg">
+          <div>
+            <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="otp">
               Enter verification code
             </label>
             <OtpInput
               value={otp}
               onChange={setOtp}
               numInputs={6}
-              renderSeparator={<span className="w-2"></span>}
+              renderSeparator={<span className="w-6"></span>}
               renderInput={(props) => <input {...props} />}
               inputStyle={{
-                width: '3.5rem',
-                height: '3.5rem',
+                width: '3rem',
+                height: '3rem',
+                margin: '0 0.5rem',
                 fontSize: '1.5rem',
-                borderRadius: '0.375rem',
-                border: '2px solid #D1D5DB',
-                outline: 'none',
+                borderRadius: '7px',
+                border: '2px solid #4222DD',
               }}
               focusStyle={{
-                border: '2px solid #3B82F6',
-                boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.5)',
+                border: '2px solid #999999',
+                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.51)',
+                outline: 'none'
               }}
-              inputType="tel"
-              containerStyle="flex justify-between"
             />
           </div>
-          <div className="flex justify-between items-center mb-4">
+
+          <div className="flex justify-between items-center">
             <button
               type="button"
-              className="text-black-600  font-bold underline hover:underline disabled:text-gray-400"
+              className="text-violet-600 font-bold hover:underline disabled:text-gray-400"
               onClick={resendCode}
-              disabled={resendCountdown > 0}
+              disabled={resendCountdown > 0 || isLoading}
             >
               Resend code
             </button>
@@ -70,16 +82,16 @@ const EmailOTP = () => {
               <span className="text-gray-500">(in {resendCountdown} seconds)</span>
             )}
           </div>
+
           <button
             type="submit"
-            className="w-full bg-violet-600 text-white py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full bg-violet-600 text-white text-sm py-3 px-4 rounded-xl hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 transition-all duration-300 font-semibold"
             disabled={isLoading}
           >
-            Submit
+            {isLoading ? 'Verifying...' : 'Verify OTP'}
           </button>
         </form>
-        {message && <p className="mt-2 text-center text-red-500">{message}</p>}
-      </div>
+      </main>
     </div>
   );
 };

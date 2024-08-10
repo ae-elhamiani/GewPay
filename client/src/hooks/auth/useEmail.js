@@ -1,4 +1,3 @@
-// src/hooks/auth/useEmail.js
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
@@ -8,15 +7,19 @@ const useEmail = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSendOTP = async (e, email) => {
-    e.preventDefault();
+  const handleSendOTP = async (email) => {
     setIsLoading(true);
     setMessage('');
 
     try {
-      // Replace this with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const address = localStorage.getItem('address');
+      if (!address) {
+        throw new Error('Wallet address not found');
+      }
+
+      const response = await authService.addEmail({ email, address });
       setMessage('Verification code sent. Please check your email.');
+      localStorage.setItem('registrationStep', response.data.step);
       navigate('/verify-email-otp');
     } catch (error) {
       console.error('Error sending OTP:', error);

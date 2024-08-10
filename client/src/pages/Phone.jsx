@@ -1,62 +1,73 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PhoneInput from 'react-phone-input-2';
+import { useProfileContext } from '../hooks/ProfileProvider';
 import 'react-phone-input-2/lib/style.css';
+import usePhone from '../hooks/auth/usePhone';
 
 const Phone = () => {
-  const [countryCode, setCountryCode] = useState('256');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const { phone, setPhone } = useProfileContext();
+  const { message, isLoading, handleSendOTP } = usePhone();
 
-  const handleSubmit = (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    console.log('Sending verification code to:', `+${countryCode}${phoneNumber}`);
+    handleSendOTP();
   };
 
   return (
-    <div className="flex flex-col justify-start px-4">
-      <div className="w-full max-w-md p-6 bg-white rounded-2xl shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">Enter your Phone Number</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="flex mb-4 space-x-2">
-            <div className="w-1/3">
-              <PhoneInput
-                country={'ma'}
-                value={countryCode}
-                onChange={(value) => setCountryCode(value)}
-                inputProps={{
-                  readOnly: true,
-                }}
-                containerClass="w-full"
-                inputStyle={{
-                  width: '100%',
-                  height: '48px',
-                  fontSize: '16px',
-                  backgroundColor: '#f3f4f6',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                }}
-                buttonStyle={{
-                  backgroundColor: '#f3f4f6',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px 0 0 8px',
-                }}
-              />
-            </div>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-2/3 h-12 px-4 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Phone number"
+    <div className="flex flex-col w-3/4">
+      <main className="flex-grow container mx-auto px-4">
+        <h1 className="text-2xl font-bold mb-8">
+          Let's verify your phone number - Ensure secure communication!
+        </h1>
+
+        {message && (
+          <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {message}
+          </div>
+        )}
+
+        <form onSubmit={onSubmit} className="space-y-6 rounded-lg">
+          <div>
+            <label htmlFor="phone" className="block text-gray-700 text-sm font-semibold mb-1">
+              Enter your phone number <span className="text-red-500">*</span>
+            </label>
+            <PhoneInput
+              country={'ma'}
+              value={phone}
+              onChange={(value) => setPhone(value)}
+              inputProps={{
+                id: 'phone',
+                required: true,
+              }}
+              containerClass="w-full"
+              inputStyle={{
+                width: '98%',
+                height: '50px',
+                marginLeft:'2%',
+                fontSize: '16px',
+                backgroundColor: '#f3f4f6',
+                border: '2px solid #8b5cf6',
+                borderRadius: '12px',
+              }}
+              buttonStyle={{
+                paddingLeft: '8px',
+                paddingRight: '5px',
+                backgroundColor: '#fff',
+                border: '2px solid #8b5cf6',
+                borderRadius: '12px 0 0 12px',
+              }}
             />
           </div>
+
           <button
             type="submit"
-            className="w-full py-3 bg-violet-600 text-white rounded-lg font-medium text-base hover:bg-indigo-700 transition duration-200"
+            className="w-full bg-violet-600 text-white text-sm py-3 px-4 rounded-xl hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 transition-all duration-300 font-semibold"
+            disabled={isLoading}
           >
-            Send verification code
+            {isLoading ? 'Sending...' : 'Send verification code'}
           </button>
         </form>
-      </div>
+      </main>
     </div>
   );
 };

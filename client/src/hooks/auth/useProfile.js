@@ -1,15 +1,15 @@
-// src/hooks/auth/useProfile.js
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProfile } from '../ProfileProvider';
-import { authService } from '../../services/authService';
+import { useProfileContext } from '../ProfileProvider';
+import {authService} from '../../services/authService';
 
 export const useProfile = () => {
-  const { 
-    uploadedImage, setUploadedImage, 
-    name, setName, 
-    businessActivity, setBusinessActivity 
-  } = useProfile();
+  const {
+    uploadedImage, setUploadedImage,
+    name, setName,
+    businessActivity, setBusinessActivity
+  } = useProfileContext();
+
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -27,35 +27,43 @@ export const useProfile = () => {
     }
   };
 
+  const sendProfileData = async (profileData) => {
+    try {
+      const response = await authService.updateProfile(profileData);
+      if (response.data.step) {
+        localStorage.setItem('registrationStep', response.data.step);
+        navigate('/register-email');
+      } else {
+        setMessage('Profile updated successfully.');
+      }
+    } catch (error) {
+      console.error('Error sending profile data:', error);
+      setMessage('An error occurred. Please try again.');
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
     setMessage('');
 
-    const merchantId = localStorage.getItem('merchantId');
-    if (!merchantId) {
-      setMessage('Merchant ID not found. Please reconnect your wallet.');
-      setIsLoading(false);
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('username', name);
-    formData.append('businessActivity', businessActivity);
-    formData.append('merchantId', merchantId);
-
-    if (uploadedImage) {
-      formData.append('image', uploadedImage);
-    }
-
     try {
-      const response = await authService.updateProfile(formData);
-      if (response.data.step) {
-        localStorage.setItem('registrationStep', response.data.step);
-        navigate('/register-email', { state: { walletAddress: merchantId } });
-      } else {
-        setMessage('Failed to update profile. Please try again.');
+      const address = localStorage.getItem('address');
+      if (!address) {
+        throw new Error('Wallet address not found');
       }
+
+      const profileData = {
+        username: name,
+        businessActivity,
+        address: address.toLowerCase(),
+      };
+
+      if (uploadedImage) {
+        profileData.image = uploadedImage;
+      }
+
+      await sendProfileData(profileData);
     } catch (error) {
       console.error('Error updating profile:', error);
       setMessage('An error occurred. Please try again.');
@@ -65,11 +73,6 @@ export const useProfile = () => {
   };
 
   return {
-    uploadedImage,
-    name,
-    setName,
-    businessActivity,
-    setBusinessActivity,
     message,
     isLoading,
     handleImageUpload,

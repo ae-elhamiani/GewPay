@@ -16,6 +16,15 @@ module.exports = {
         'mooove2': 'rgba(66, 34, 221, 0.22)',
 
       },
+      animation: {
+        reflect: 'reflect 7s infinite',
+      },
+      keyframes: {
+        reflect: {
+          '0%': { transform: 'translateX(-100%) skew(-12deg)' },
+          '100%': { transform: 'translateX(400%) skew(-12deg)' },
+        },
+      },
     },
   },
   plugins: [],

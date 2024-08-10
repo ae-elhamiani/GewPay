@@ -1,6 +1,5 @@
 const express = require('express');
 const merchantController = require('../controllers/merchantController');
-
 const router = express.Router();
 
 router.post('/register', merchantController.registerMerchant);
