@@ -11,7 +11,7 @@ const RegistrationStep = {
 };
 
 const merchantSchema = new mongoose.Schema({
-  _id: { type: String, required: true }, // This will be the Ethereum address
+  _id: { type: String, required: true, lowercase: true },
   secretKey: { type: String, default: () => crypto.randomBytes(32).toString('base64') },
   image: String,
   username: String,
@@ -23,7 +23,6 @@ const merchantSchema = new mongoose.Schema({
   registrationStep: { type: String, enum: Object.values(RegistrationStep), default: RegistrationStep.INITIAL }
 }, { timestamps: true });
 
-module.exports = {
-  Merchant: mongoose.model('Merchant', merchantSchema),
-  RegistrationStep
-};
+const Merchant = mongoose.model('Merchant', merchantSchema);
+
+module.exports = { Merchant, RegistrationStep };

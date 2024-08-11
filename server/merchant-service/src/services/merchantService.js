@@ -1,11 +1,32 @@
 const { Merchant, RegistrationStep } = require('../models/Merchant');
 
 exports.registerMerchant = async (address) => {
-  const merchant = new Merchant({
-    _id: address.toLowerCase(), 
-    registrationStep: RegistrationStep.INITIAL
-  });
-  return await merchant.save();
+  if (!address) {
+    throw new Error('Address is required');
+  }
+  const lowercaseAddress = address.toLowerCase();
+  
+  try {
+    // Check if a merchant with this address already exists
+    const existingMerchant = await Merchant.findById(lowercaseAddress);
+    
+    if (existingMerchant) {
+      throw new Error('Merchant with this address already exists');
+    }
+    
+    // If no existing merchant, create a new one
+    const merchant = new Merchant({
+      _id: lowercaseAddress,
+      registrationStep: RegistrationStep.INITIAL
+    });
+    
+    return await merchant.save();
+  } catch (error) {
+    if (error.message !== 'Merchant with this address already exists') {
+      console.error('Error in registerMerchant:', error);
+    }
+    throw error;
+  }
 };
 
 exports.updateProfile = async (address, { image, username, businessActivity }) => {

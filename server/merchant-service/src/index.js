@@ -18,10 +18,26 @@ app.use(errorHandler);
 
 mongoose.set('strictQuery', false);
 
+const removeConflictingIndex = async () => {
+  try {
+    const Merchant = mongoose.model('Merchant');
+    await Merchant.collection.dropIndex('address_1');
+    console.log('Successfully removed conflicting index');
+  } catch (error) {
+    if (error.code === 27) {
+      console.log('Index does not exist, no need to remove');
+    } else {
+      console.error('Error removing conflicting index:', error);
+    }
+  }
+};
+
 async function startServer() {
   try {
-    await mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await mongoose.connect(config.mongoURI);
     console.log('Connected to MongoDB');
+
+    await removeConflictingIndex();
 
     const PORT = parseInt(config.port, 10);
     const SERVICE_ID = `merchant-service-${process.env.HOSTNAME || 'local'}`;

@@ -6,9 +6,20 @@ const { RegistrationStep } = require('../models/Merchant');
 exports.registerMerchant = async (req, res, next) => {
   try {
     const { address } = req.body;
+    console.log("address wallet 1");
+    console.log(address);
+
+    if (!address) {
+      return res.status(400).json({ error: 'Address is required' });
+    }
+    
     const merchant = await merchantService.registerMerchant(address);
     res.status(201).json({ merchantId: merchant._id, step: merchant.registrationStep });
   } catch (error) {
+    console.error('Error in registerMerchant:', error);
+    if (error.message === 'Merchant with this address already exists') {
+      return res.status(409).json({ error: error.message,  merchantId: address});
+    }
     next(error);
   }
 };
