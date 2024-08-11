@@ -2,6 +2,8 @@ import React from 'react';
 import { ConnectWallet } from '@thirdweb-dev/react';
 import useWalletAuth from "../hooks/auth/useWalletAuth";
 import "../styles/styles.css";
+import { CheckCircle, AlertCircle, Loader } from 'lucide-react';
+
 
 function Wallet() {
   const { error, address, isMerchant, connectWallet, connectionStatus } = useWalletAuth();
@@ -23,14 +25,40 @@ function Wallet() {
             onClick={connectWallet}
           />
     
-          ) : (
-            <div className="text-blue-600 font-semibold">
-              <p>{isMerchant ? 'Merchant wallet connected successfully' : 'Registering as merchant...'}</p>
-            </div>
-          )}
+        ) : (
+          <div className={`p-4 rounded-md mb-2 ${isMerchant ? 'bg-violet-50' : 'bg-violet-50'}`}>
+            {isMerchant ? (
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-violet-400 mr-3" />
+                <p className="text-sm font-medium text-violet-800">
+                  Merchant wallet connected successfully
+                </p>
+              </div>
+            ) : (
+              <div className="p-4  bg-violet-50">
+
+              {!error ? (
+                <div className="flex items-center">
+                  <Loader className="h-5 w-5 text-violet-600 mr-3 animate-spin" />
+                  <p className="text-sm font-medium text-violet-600">
+                    Registering as merchant...
+                  </p>
+                </div>
+              ) : (
+                  <div className="flex items-center">
+                    <AlertCircle className="h-5 w-5 text-violet-600 mr-3" />
+                    <p className="text-sm font-medium text-violet-600">{error}</p>
+                  </div>
+               
+              )}
+             </div>
           
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-          
+            )}
+          </div>
+        )}
+
+       
+         
           {!address && (
             <p className="text-sm text-gray-600 mt-4">
               Don't have a Web3 wallet?{' '}

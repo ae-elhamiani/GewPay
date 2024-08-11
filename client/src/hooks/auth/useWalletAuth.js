@@ -4,7 +4,7 @@ import { useAddress, useDisconnect, useSigner, useMetamask, useConnectionStatus,
 import { ethers } from 'ethers';
 import { authService } from '../../services/authService';
 
-const MERCHANT_REGISTER_ADDRESS = '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE';
+const MERCHANT_REGISTER_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
 const MERCHANT_REGISTER_ABI = [
   {
     inputs: [{ name: "merchant", type: "address" }],
@@ -109,7 +109,7 @@ const useWalletAuth = () => {
       const isRegistered = await checkMerchantStatus(address);
 
       if (isRegistered) {
-        navigate('/profile');
+        navigate('/dashboard');
       } else {
         await registerMerchant(address);
       }
@@ -156,7 +156,7 @@ const useWalletAuth = () => {
       authenticateWithBackend(address);
     } else if (address && connectionStatus === "connected" && localStorage.getItem('authToken')) {
       console.log('Navigating to /profile');
-      // navigate('/profile');
+      navigate('/dashboard');
     }
   }, [address, connectionStatus, authenticateWithBackend, navigate, isAuthenticating]);
 

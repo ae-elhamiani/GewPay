@@ -1,12 +1,12 @@
-// src/components/layout/Layout.jsx
+// src/layout/Layout.jsx
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import Whale from '../common/Whale';
-import CardData from '../Profile/CardData';
+import Whale from './Whale';
+import CardData from './CardData';
 import { useProfileContext } from '../../hooks/ProfileProvider';
-import Logo from '../common/Logo';
+import Logo from '../../components/common/Logo';
 
-const Layout = () => {
+const AuthLayout = () => {
   const location = useLocation();
   const { showCardData, setShowCardData } = useProfileContext();
   const [isCardVisible, setIsCardVisible] = useState(false);
@@ -50,4 +50,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default AuthLayout;

@@ -1,13 +1,16 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Search, Download, ChevronDown } from 'lucide-react';
+import { Download } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
 import ClientTable from '../components/ClientTable';
 import FilterSelect from '../components/FilterSelect';
 import SearchInput from '../components/SearchInput';
 
-const Dashboard = ({ isDarkMode }) => {
+
+const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [transactionFilter, setTransactionFilter] = useState('All');
   const [periodFilter, setPeriodFilter] = useState('All Time');
+  const { isDarkMode } = useOutletContext();
 
   const clientData = useMemo(() => [
     // { id: '0x0234234', email: 'gmail@gmail.com', orders: 8000, volume: 130, adsSpent: 9500, refunds: 13, color: '#8B5CF6' },
@@ -32,31 +35,38 @@ const Dashboard = ({ isDarkMode }) => {
   return (
     <div className="flex flex-col space-y-6 p-6">
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-        <div className="flex space-x-2">
-          <FilterSelect 
-            options={['All', 'Completed', 'Pending', 'Cancelled']} 
-            value={transactionFilter} 
-            onChange={handleTransactionFilterChange}
-            label="Transaction"
-          />
-          <FilterSelect 
-            options={['All Time', 'This Week', 'This Month', 'This Year']} 
-            value={periodFilter} 
-            onChange={handlePeriodFilterChange}
-            label="Period"
-          />
-        </div>
-        <div className="flex space-x-2">
-          <SearchInput
-            value={searchTerm}
-            onChange={handleSearchChange}
-            placeholder="Find transaction"
-          />
-          <button className="flex items-center bg-white text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 shadow-sm">
-            <Download size={20} className="mr-2" />
-            <span className="hidden lg:inline">Download</span>
-          </button>
-        </div>
+      <div className="flex space-x-2">
+      <FilterSelect 
+        options={['All', 'Completed', 'Pending', 'Cancelled']} 
+        value={transactionFilter} 
+        onChange={handleTransactionFilterChange}
+        label="Transaction"
+        isDarkMode={isDarkMode}
+      />
+      <FilterSelect 
+        options={['All Time', 'This Week', 'This Month', 'This Year']} 
+        value={periodFilter} 
+        onChange={handlePeriodFilterChange}
+        label="Period"
+        isDarkMode={isDarkMode}
+      />
+    </div>
+    <div className="flex space-x-2">
+      <SearchInput
+        value={searchTerm}
+        onChange={handleSearchChange}
+        placeholder="Find transaction"
+        isDarkMode={isDarkMode}
+      />
+      <button className={`flex items-center ${
+        isDarkMode 
+          ? 'bg-purple-900 text-white hover:bg-purple-800' 
+          : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+      } py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm`}>
+        <Download size={20} className="mr-2" />
+        <span className="hidden lg:inline">Download</span>
+      </button>
+    </div>
       </div>
       <ClientTable clients={filteredClients} isDarkMode={isDarkMode} />
     </div>
