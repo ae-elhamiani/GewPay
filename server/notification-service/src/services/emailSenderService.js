@@ -23,6 +23,7 @@ exports.sendEmail = async (toEmail, category, variables) => {
     const htmlContent = thymeleafService.createContent(template.content, variables);
 
     await transporter.sendMail({
+      from: '"GWEPAY" <noreply@gwepay.com>', // Add this line
       to: toEmail,
       subject: template.subject,
       html: htmlContent
