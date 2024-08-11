@@ -3,7 +3,6 @@ const crypto = require('crypto');
 
 const RegistrationStep = {
   INITIAL: 'INITIAL',
-  PROFILE: 'PROFILE',
   EMAIL: 'EMAIL',
   VERIFY_EMAIL: 'VERIFY_EMAIL',
   PHONE: 'PHONE',
@@ -12,10 +11,11 @@ const RegistrationStep = {
 };
 
 const merchantSchema = new mongoose.Schema({
-  address: { type: String, required: true, unique: true },
+  _id: { type: String, required: true, lowercase: true },
   secretKey: { type: String, default: () => crypto.randomBytes(32).toString('base64') },
   image: String,
   username: String,
+  businessActivity: String,
   email: String,
   emailVerified: { type: Boolean, default: false },
   phone: String,
@@ -23,7 +23,6 @@ const merchantSchema = new mongoose.Schema({
   registrationStep: { type: String, enum: Object.values(RegistrationStep), default: RegistrationStep.INITIAL }
 }, { timestamps: true });
 
-module.exports = {
-  Merchant: mongoose.model('Merchant', merchantSchema),
-  RegistrationStep
-};
+const Merchant = mongoose.model('Merchant', merchantSchema);
+
+module.exports = { Merchant, RegistrationStep };

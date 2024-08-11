@@ -1,54 +1,92 @@
 const { Merchant, RegistrationStep } = require('../models/Merchant');
 
 exports.registerMerchant = async (address) => {
-  const merchant = new Merchant({ address, registrationStep: RegistrationStep.INITIAL });
-  return await merchant.save();
+  if (!address) {
+    throw new Error('Address is required');
+  }
+  const lowercaseAddress = address.toLowerCase();
+  
+  try {
+    // Check if a merchant with this address already exists
+    const existingMerchant = await Merchant.findById(lowercaseAddress);
+    
+    if (existingMerchant) {
+      throw new Error('Merchant with this address already exists');
+    }
+    
+    // If no existing merchant, create a new one
+    const merchant = new Merchant({
+      _id: lowercaseAddress,
+      registrationStep: RegistrationStep.INITIAL
+    });
+    
+    return await merchant.save();
+  } catch (error) {
+    if (error.message !== 'Merchant with this address already exists') {
+      console.error('Error in registerMerchant:', error);
+    }
+    throw error;
+  }
 };
 
-exports.updateProfile = async (merchantId, { image, username }) => {
-  return await Merchant.findByIdAndUpdate(
-    merchantId,
-    { image, username, registrationStep: RegistrationStep.EMAIL },
-    { new: true }
-  );
+exports.updateProfile = async (address, { image, username, businessActivity }) => {
+  try {
+    const updatedMerchant = await Merchant.findByIdAndUpdate(
+      address.toLowerCase(), 
+      { 
+        image, 
+        username, 
+        businessActivity, 
+        registrationStep: RegistrationStep.EMAIL 
+      },
+      { new: true }
+    );
+
+    if (!updatedMerchant) {
+      console.log(`No merchant found with address: ${address}`);
+    }
+
+    return updatedMerchant;
+  } catch (error) {
+    console.error('Error in merchantService.updateProfile:', error);
+    throw error;
+  }
 };
 
-exports.addEmail = async (merchantId, email) => {
+exports.addEmail = async (address, email) => {
   return await Merchant.findByIdAndUpdate(
-    merchantId,
+    address.toLowerCase(),
     { email, emailVerified: false, registrationStep: RegistrationStep.VERIFY_EMAIL },
     { new: true }
   );
 };
 
-exports.verifyEmail = async (merchantId) => {
+exports.verifyEmail = async (address) => {
   return await Merchant.findByIdAndUpdate(
-    merchantId,
+    address.toLowerCase(),
     { emailVerified: true, registrationStep: RegistrationStep.PHONE },
     { new: true }
   );
 };
 
-exports.addPhone = async (merchantId, phone) => {
+exports.addPhone = async (address, phone) => {
   return await Merchant.findByIdAndUpdate(
-    merchantId,
+    address.toLowerCase(),
     { phone, phoneVerified: false, registrationStep: RegistrationStep.VERIFY_PHONE },
     { new: true }
   );
 };
 
-exports.verifyPhone = async (merchantId) => {
+exports.verifyPhone = async (address) => {
   return await Merchant.findByIdAndUpdate(
-    merchantId,
+    address.toLowerCase(),
     { phoneVerified: true, registrationStep: RegistrationStep.COMPLETE },
     { new: true }
   );
 };
 
-exports.getMerchantBy = async (address) => {
-  return await Merchant.findOne({ address });
-};
+
 
 exports.getMerchantById = async (id) => {
-  return await Merchant.findById(id);
+  return await Merchant.findById(id.toLowerCase());
 };
