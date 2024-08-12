@@ -82,6 +82,37 @@ router.post('/send-email', emailSenderController.sendEmail);
 
 /**
  * @swagger
+ * /send-sms:
+ *   post:
+ *     summary: Send an SMS
+ *     tags: [SMS]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - tophone
+ *               - templateCategory
+ *               - variables
+ *             properties:
+ *               tophone:
+ *                 type: string
+ *               templateCategory:
+ *                 type: string
+ *               variables:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: sms sent successfully
+ *       500:
+ *         description: Server error
+ */
+router.post('/send-sms', emailSenderController.sendEmail);
+
+/**
+ * @swagger
  * /send-bulk-email:
  *   post:
  *     summary: Send bulk emails
