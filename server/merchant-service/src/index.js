@@ -4,6 +4,8 @@ const config = require('./config');
 const merchantRoutes = require('./routes/merchantRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const consulClient = require('./services/consulClient');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swaggerConfig');
 
 const app = express();
 
@@ -14,6 +16,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/', merchantRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use(errorHandler);
 
 mongoose.set('strictQuery', false);

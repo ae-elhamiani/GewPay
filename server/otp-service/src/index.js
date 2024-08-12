@@ -4,8 +4,8 @@ const config = require('./config');
 const { connectRedis } = require('./utils/redisClient');
 const otpRoutes = require('./routes/otpRoutes');
 const errorHandler = require('./middleware/errorHandler');
-// const swaggerUi = require('swagger-ui-express');
-// const swaggerSpecs = require('./config/swaggerConfig');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swaggerConfig');
 
 const app = express();
 
@@ -17,7 +17,7 @@ async function startServer() {
     await connectRedis();
 
     app.use('/', otpRoutes);
-    // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
     app.use(errorHandler);
 
     const consulClient = new consul({

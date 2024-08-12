@@ -20,11 +20,6 @@ const Phone = () => {
           Let's verify your phone number - Ensure secure communication!
         </h1>
 
-        {message && (
-          <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            {message}
-          </div>
-        )}
 
         <form onSubmit={onSubmit} className="space-y-6 rounded-lg">
           <div>

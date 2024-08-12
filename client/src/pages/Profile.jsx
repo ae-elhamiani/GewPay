@@ -27,11 +27,6 @@ const Profile = () => {
           Hey! Get set to elevate your profile - we're about to make it stand out!
         </h1>
         
-        {message && (
-          <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            {message}
-          </div>
-        )}
         
         <form onSubmit={handleSubmit} className="space-y-6 rounded-lg">
           <div className="flex items-center space-x-5">
