@@ -26,27 +26,27 @@ function Wallet() {
           />
     
         ) : (
-          <div className={`p-4 rounded-md mb-2 ${isMerchant ? 'bg-violet-50' : 'bg-violet-50'}`}>
+          <div className={`p-4 rounded-md mb-2`}>
             {isMerchant ? (
               <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-violet-400 mr-3" />
+                <CheckCircle className="h-6 w-6 text-violet-400 mr-3" />
                 <p className="text-sm font-medium text-violet-800">
                   Merchant wallet connected successfully
                 </p>
               </div>
             ) : (
-              <div className="p-4  bg-violet-50">
+              <div className="p-4 ">
 
               {!error ? (
                 <div className="flex items-center">
-                  <Loader className="h-5 w-5 text-violet-600 mr-3 animate-spin" />
+                  <Loader className="h-6 w-6 text-violet-600 mr-3 animate-spin" />
                   <p className="text-sm font-medium text-violet-600">
                     Registering as merchant...
                   </p>
                 </div>
               ) : (
                   <div className="flex items-center">
-                    <AlertCircle className="h-5 w-5 text-violet-600 mr-3" />
+                    <AlertCircle className="h-8 w-8 text-violet-600 mr-3" />
                     <p className="text-sm font-medium text-violet-600">{error}</p>
                   </div>
                

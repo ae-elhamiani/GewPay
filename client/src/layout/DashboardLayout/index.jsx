@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { useAddress, useDisconnect } from '@thirdweb-dev/react';
+import { useDisconnect } from '@thirdweb-dev/react';
 
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -60,7 +60,7 @@ const DashboardLayout = () => {
     localStorage.removeItem('merchantId');
     localStorage.removeItem('registrationStep');
     // setIsMerchant(false);
-    navigate('/wallet');    navigate('/'); // Redirect to login page
+    navigate('/wallet');     // Redirect to login page
   };
 
   return (

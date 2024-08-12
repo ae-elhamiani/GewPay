@@ -22,6 +22,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/wallet" replace />} />
           <Route path="wallet" element={<Wallet />} />
+          <Route path="profile" element={<Profile />} />
           <Route path="register-email" element={<Email />} />
           <Route path="verify-email-otp" element={<EmailOTP />} />
           <Route path="register-phone" element={<Phone />} />
@@ -29,7 +30,11 @@ function App() {
         </Route>
 
         {/* Protected routes */}
-        <Route path="/dashboard" element={<PrivateRoute><DashboardLayout /></PrivateRoute>}>
+        <Route path="/dashboard" element={
+          <PrivateRoute>
+            <DashboardLayout />
+          </PrivateRoute>
+        }>
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
           {/* Add other dashboard-related routes here */}

@@ -9,7 +9,7 @@ import Logo from '../../components/common/Logo';
 const AuthLayout = () => {
   const location = useLocation();
   const { showCardData, setShowCardData } = useProfileContext();
-  const [isCardVisible, setIsCardVisible] = useState(false);
+  const [isCardVisible] = useState(false);
 
   const routesWithCard = [
     '/profile',
