@@ -128,4 +128,40 @@ router.post('/rotate-api-key/:storeId', storeController.rotateApiKey);
  */
 router.post('/api-key/:storeId/', storeController.generateApiKey);
 
+/**
+ * @swagger
+ * /validate-api-key:
+ *   post:
+ *     summary: Validate an API key
+ *     tags: [Store]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - storeId
+ *               - apiKey
+ *             properties:
+ *               storeId:
+ *                 type: string
+ *               apiKey:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: API key validation result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isValid:
+ *                   type: boolean
+ *                 storeId:
+ *                   type: string
+ */
+router.post('/validate-api-key', storeController.validateApiKey);
+
+
 module.exports = router;

@@ -51,6 +51,34 @@ exports.generateApiKey = async (storeId) => {
     return apiKey;
   };
 
+  exports.validateApiKey = async (storeId, apiKey) => {
+    const store = await Store.findOne({ _id: storeId, apiKey });
+    if (store) {
+      store.apiKeyLastUsed = new Date();
+      store.apiKeyUsageCount += 1;
+      await store.save();
+      return { isValid: true, storeId: store._id };
+    } else {
+      return { isValid: false };
+    }
+  };
+
+  exports.isApiKeyCompromised = async (storeId) => {
+    const store = await Store.findById(storeId);
+    if (!store) {
+      throw new Error('Store not found');
+    }
+  
+    const threshold = 1000; // Example threshold
+    const timeThreshold = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  
+    if (store.apiKeyUsageCount > threshold && 
+        (new Date() - store.apiKeyLastUsed) < timeThreshold) {
+      return true;
+    }
+  
+    return false;
+  };
 
 function generateSecureApiKey() {
     return `${uuidv4()}-${crypto.randomBytes(32).toString('hex')}`;

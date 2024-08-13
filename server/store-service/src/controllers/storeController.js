@@ -55,3 +55,24 @@ exports.generateApiKey = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.validateApiKey = async (req, res, next) => {
+  try {
+    const { storeId, apiKey } = req.body;
+    if (!storeId || !apiKey) {
+      return res.status(400).json({ message: 'StoreId and apiKey are required' });
+    }
+    const result = await storeService.validateApiKey(storeId, apiKey);
+    
+    if (result.isValid) {
+      const isCompromised = await storeService.isApiKeyCompromised(storeId);
+      if (isCompromised) {
+        return res.status(403).json({ message: 'API key may be compromised. Please rotate your key.' });
+      }
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
