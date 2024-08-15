@@ -1,0 +1,19 @@
+.woocommerce-checkout #payment .payment_method_gwepay #gwepay-pay-button {
+    background-color: #7d4cf0;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+    display: inline-block;
+    text-transform: uppercase;
+    margin: 10px 0;
+    text-decoration: none;
+}
+
+.woocommerce-checkout #payment .payment_method_gwepay #gwepay-pay-button:hover {
+    background-color: #6b3ec9;
+}

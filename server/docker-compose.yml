@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   consul:
@@ -36,7 +36,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -91,6 +91,8 @@ services:
     depends_on:
       consul:
         condition: service_healthy
+      mongodb:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
       interval: 10s
@@ -112,6 +114,8 @@ services:
       - SMTP_PASS=ehci khce cibu dfwi
     depends_on:
       consul:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5003/health"]
@@ -155,10 +159,59 @@ services:
       retries: 3
       start_period: 30s
 
+  payment-service:
+    build: ./store-service
+    ports:
+      - '5006:5006'
+    depends_on:
+      consul:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5006/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: wordpress_db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress_password
+      WORDPRESS_DB_NAME: wordpress
+      PAYMENT_SERVICE_URL: 
+      AUTH_SERVICE_URL: 
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wordpress/wp-content/plugins/gwepay-payment-gateway:/var/www/html/wp-content/plugins/gwepay-payment-gateway
+      - ./wordpress/wp-config.php:/var/www/html/wp-config.php
+
+    depends_on:
+      - wordpress_db
+    networks:
+      - myapp-network
+
+  wordpress_db:
+    image: mysql:8.0
+    volumes:
+      - wordpress_db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress_password
+    networks:
+      - myapp-network
+
 volumes:
   mongodb_data:
   redis_data:
+  wordpress_data:
+  wordpress_db_data:
 
 networks:
-  default:
+  myapp-network:
     name: myapp-network
