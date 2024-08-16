@@ -20,10 +20,8 @@ class Gwepay_Validator {
             error_log("Validation error: " . $response->get_error_message());
             return false;
         }
-    
         $body = wp_remote_retrieve_body($response);
         $result = json_decode($body, true);
-    
         // Log the result for debugging
         error_log("Validation response: " . print_r($result, true));
     

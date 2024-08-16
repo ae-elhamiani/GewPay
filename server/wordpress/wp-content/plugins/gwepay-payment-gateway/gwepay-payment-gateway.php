@@ -20,15 +20,19 @@ function gwepay_init_gateway() {
         return;
     }
 
-    // Include the interface and necessary classes
-    require_once plugin_dir_path(__FILE__) . 'includes/interfaces/class-gwepay-validator-interface.php';
+    // Include necessary classes
     require_once plugin_dir_path(__FILE__) . 'includes/Gwepay_Validator.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/class-gwepay-wc-gateway.php';
 
     // Register the gateway with WooCommerce
     add_filter('woocommerce_payment_gateways', function($gateways) {
-        $gateways[] = 'Gwepay_WC_Gateway';
+        if (!in_array('Gwepay_WC_Gateway', $gateways)) {
+            $gateways[] = 'Gwepay_WC_Gateway';
+        }
         return $gateways;
     });
+
+    error_log("GwePay: Gateway added to WooCommerce payment methods");
 }
 
 add_action('plugins_loaded', 'gwepay_init_gateway', 11);
@@ -43,20 +47,4 @@ function gwepay_activate() {
 
 function gwepay_deactivate() {
     // Deactivation tasks
-
-}
-add_action('plugins_loaded', 'init_gwepay_gateway');
-
-function init_gwepay_gateway() {
-    if (!class_exists('WC_Payment_Gateway')) return;
-
-    require_once plugin_dir_path(__FILE__) . 'includes/class-gwepay-wc-gateway.php';
-
-    function add_gwepay_gateway($methods) {
-        $methods[] = 'Gwepay_WC_Gateway';
-        return $methods;
-    }
-
-    add_filter('woocommerce_payment_gateways', 'add_gwepay_gateway');
-    error_log("GwePay: Gateway added to WooCommerce payment methods");
 }
