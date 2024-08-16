@@ -5,5 +5,5 @@ if (!defined('ABSPATH')) {
 }
 
 interface Gwepay_Validator_Interface {
-    public function validate(string $input): bool;
+    public function validate(string $store_id, string $api_key): bool;
 }

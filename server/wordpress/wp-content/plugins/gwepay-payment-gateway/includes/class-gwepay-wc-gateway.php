@@ -1,45 +1,40 @@
 <?php
-
 if (!defined('ABSPATH')) {
-    exit;
+    exit; // Exit if accessed directly
 }
 
-// Include validators
-require_once plugin_dir_path(__FILE__) . 'class-gwepay-api-validator.php';
-require_once plugin_dir_path(__FILE__) . 'class-gwepay-store-validator.php';
-require_once plugin_dir_path(__FILE__) . 'class-gwepay-validator-factory.php';
+require_once(plugin_dir_path(__FILE__) . 'Gwepay_Validator.php');
 
 class Gwepay_WC_Gateway extends WC_Payment_Gateway {
-
-    private $api_key;
-    private $store_id;
-    private $api_validator;
-    private $store_validator;
+    private $validator;
+    protected $api_key;
+    protected $store_id;
 
     public function __construct() {
         $this->id                 = 'gwepay';
-        $this->icon               = ''; // URL to your payment gateway's icon.
-        $this->has_fields         = true; // Set to true to display custom fields.
+        $this->icon               = ''; // URL to the icon should be here
+        $this->has_fields         = false;
         $this->method_title       = 'Gwepay';
         $this->method_description = 'Accept payments using Gwepay.';
 
-        // Load the settings.
+        $this->validator = new Gwepay_Validator();
+
+        // Load the settings
         $this->init_form_fields();
         $this->init_settings();
 
-        // Define user settings.
+        // Define user set variables
         $this->title        = $this->get_option('title');
         $this->description  = $this->get_option('description');
         $this->enabled      = $this->get_option('enabled');
         $this->api_key      = $this->get_option('api_key');
         $this->store_id     = $this->get_option('store_id');
 
-        // Initialize Validators using Factory
-        $this->api_validator = Gwepay_Validator_Factory::create_api_validator();
-        $this->store_validator = Gwepay_Validator_Factory::create_store_validator();
-
-        // Actions and filters.
+        // Actions
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
+        add_action('woocommerce_api_gwepay_callback', array($this, 'webhook'));
+
+        $this->log("Gwepay_WC_Gateway initialized");
     }
 
     public function init_form_fields() {
@@ -50,13 +45,26 @@ class Gwepay_WC_Gateway extends WC_Payment_Gateway {
                 'label'   => 'Enable Gwepay Payment',
                 'default' => 'yes'
             ),
+            'title' => array(
+                'title'       => 'Title',
+                'type'        => 'text',
+                'description' => 'This controls the title which the user sees during checkout.',
+                'default'     => 'Gwepay Payment',
+                'desc_tip'    => true,
+            ),
+            'description' => array(
+                'title'       => 'Description',
+                'type'        => 'textarea',
+                'description' => 'Payment method description that the customer will see on your checkout.',
+                'default'     => 'Pay securely using Gwepay.',
+            ),
             'api_key' => array(
                 'title'       => 'API Key',
                 'type'        => 'text',
                 'description' => 'Enter your Gwepay API Key here.',
                 'default'     => '',
                 'desc_tip'    => true,
-                'placeholder' => 'Your API Key...',
+                'placeholder' => 'sk_test_xxxxxxxxxxxxxxxxxxxxxxxx',
             ),
             'store_id' => array(
                 'title'       => 'Store ID',
@@ -64,53 +72,72 @@ class Gwepay_WC_Gateway extends WC_Payment_Gateway {
                 'description' => 'Enter your Gwepay Store ID here.',
                 'default'     => '',
                 'desc_tip'    => true,
-                'placeholder' => 'Your Store ID...',
+                'placeholder' => 'store_xxxxxxxxxxxxxxxx',
             ),
-            
         );
     }
 
-    
 
-    public function payment_fields() {
-        if ($this->description) {
-            echo wpautop(wp_kses_post($this->description));
-        }
-    
-        // Path to the custom button template
-        $template_path = plugin_dir_path(__FILE__) . '../templates/gwepay-checkout-button.php';
-    
-        if (file_exists($template_path)) {
-            // Pass the gateway instance to the template
-            $gateway = $this; // Assign $this to $gateway
-            include $template_path;
-        } else {
-            error_log('Gwepay template file not found: ' . $template_path);
+    public function process_payment($order_id) {
+        // Payment processing logic goes here
+        // This is just a placeholder
+        $order = wc_get_order($order_id);
+        $order->update_status('on-hold', __('Awaiting Gwepay payment', 'woocommerce'));
+        
+        // Reduce stock levels
+        wc_reduce_stock_levels($order_id);
+        
+        // Remove cart
+        WC()->cart->empty_cart();
+        
+        // Return thankyou redirect
+        return array(
+            'result'   => 'success',
+            'redirect' => $this->get_return_url($order),
+        );
+    }
+
+    public function webhook() {
+        // Webhook handling logic goes here
+        $this->log("Webhook received");
+        // Implement your webhook logic here
+    }
+
+    private function log($message) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("Gwepay: $message");
         }
     }
-    
 
     public function process_admin_options() {
+        $this->log("Starting to process admin options", 'info');
         $saved = parent::process_admin_options();
-
-        // Validate the API Key and Store ID
-        $api_key_valid = $this->api_validator->validate($this->get_option('api_key'));
-        $store_id_valid = $this->store_validator->validate($this->get_option('store_id'));
-
-        if (!$api_key_valid) {
-            WC_Admin_Settings::add_error(__('Invalid API Key. Please check and try again.', 'gwepay-payment-gateway'));
+    
+        // Validate API Key and Store ID
+        $api_key = $this->get_option('api_key');
+        $store_id = $this->get_option('store_id');
+    
+        $this->log("Attempting to validate credentials - API Key: {$api_key}, Store ID: {$store_id}", 'info');
+    
+        if ($this->validator->validate_credentials($api_key, $store_id)) {
+            $this->log("Credentials validated successfully", 'info');
+            WC_Admin_Settings::add_message(__('Gwepay settings validated successfully.', 'woocommerce'));
+        } else {
+            $this->log("Credential validation failed", 'error');
+            WC_Admin_Settings::add_error(__('Invalid Gwepay API Key or Store ID.', 'woocommerce'));
             $saved = false;
         }
-
-        if (!$store_id_valid) {
-            WC_Admin_Settings::add_error(__('Invalid Store ID. Please check and try again.', 'gwepay-payment-gateway'));
-            $saved = false;
-        }
-
-        if ($saved) {
-            WC_Admin_Settings::add_message(__('API Key and Store ID validated successfully.', 'gwepay-payment-gateway'));
-        }
-
+    
+        $this->log("Finished processing admin options. Saved: " . ($saved ? 'true' : 'false'), 'info');
         return $saved;
     }
 }
+
+// Add the Gateway to WooCommerce
+function add_gwepay_gateway_class($methods) {
+    $methods[] = 'Gwepay_WC_Gateway';
+    return $methods;
+}
+
+
+add_filter('woocommerce_payment_gateways', 'add_gwepay_gateway_class');
