@@ -2,7 +2,7 @@
 /*
 Plugin Name: GWEPAY Crypto Payment Gateway
 Description: Accept payments using Gwepay.
-Version: 1.0
+Version: 1.1
 Author: GWENOD
 Text Domain: gwepay-payment-gateway
 */
@@ -32,6 +32,7 @@ function gwepay_init_gateway() {
     // Include necessary classes
     require_once plugin_dir_path(__FILE__) . 'includes/Gwepay_Validator.php';
     require_once plugin_dir_path(__FILE__) . 'includes/class-gwepay-wc-gateway.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/class-gwepay-payment-handler.php';
 
     // Register the gateway with WooCommerce
     add_filter('woocommerce_payment_gateways', 'add_gwepay_gateway_class');
@@ -42,6 +43,8 @@ function gwepay_init_gateway() {
 // Add the Configure link to the plugin on the plugins page
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'gwepay_add_configure_link');
 add_action('plugins_loaded', 'gwepay_init_gateway', 11);
+add_action('woocommerce_api_gwepay_webhook', array('Gwepay\Gateway\Gwepay_Payment_Handler', 'handle_webhook'));
+
 
 function gwepay_add_configure_link($links) {
     $settings_link = '<a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=checkout&section=gwepay')) . '">' . esc_html__('Configure', 'gwepay-payment-gateway') . '</a>';
