@@ -1,11 +1,11 @@
 <?php
-/*
-Plugin Name: GWEPAY Crypto Payment Gateway
-Description: Accept payments using Gwepay.
-Version: 1.1
-Author: GWENOD
-Text Domain: gwepay-payment-gateway
-*/
+// /*
+// Plugin Name: GWEPAY Crypto Payment Gateway
+// Description: Accept payments using Gwepay.
+// Version: 1.1
+// Author: GWENOD
+// Text Domain: gwepay-payment-gateway
+// */
 
 if (!defined('ABSPATH')) {
     exit;
