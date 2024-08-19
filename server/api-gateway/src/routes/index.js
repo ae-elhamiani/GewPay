@@ -33,6 +33,7 @@ router.use('/auth', proxyMiddleware('auth-service'));
 router.use('/merchant', proxyMiddleware('merchant-service'));
 router.use('/notif', proxyMiddleware('notification-service'));
 router.use('/otp', proxyMiddleware('otp-service'));
+router.use('/payment', proxyMiddleware('payment-service'));
 router.use('/store', proxyMiddleware('store-service'));
 
 

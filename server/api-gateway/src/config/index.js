@@ -8,6 +8,6 @@ module.exports = {
   merchantServiceName: 'merchant-service',
   notifServiceName: 'notif-service',
   otpServiceName: 'otp-service',
+  paymentServiceName: 'payment-service',  
   storeServiceName: 'store-service'
-
 };
