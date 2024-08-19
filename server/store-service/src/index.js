@@ -6,6 +6,7 @@ const errorHandler = require('./middleware/errorHandler');
 const consulClient = require('./services/consulClient');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swaggerConfig');
+// const Token = require('./models/Token'); //!!!!
 
 const app = express();
 
@@ -34,13 +35,38 @@ const removeConflictingIndex = async () => {
     }
   }
 };
+//!!!
+// const mockTokens = [
+//   { symbol: 'ETH', name: 'Ethereum', addressToken: '0x1234567890123456789012345678901234567810', logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', chainId: 1, decimals: 18 },
+//   { symbol: 'USDT', name: 'Tether', addressToken: '0x2345678901234567890123456789012345678911', logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png', chainId: 1, decimals: 6 },
+//   { symbol: 'USDC', name: 'USD Coin', addressToken: '0x3456789012345678901234567890123456789022', logo: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png', chainId: 1, decimals: 6 },
+//   { symbol: 'BNB', name: 'Binance Coin', addressToken: '0x4567890123456789012345678901234567890133', logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.png', chainId: 56, decimals: 18 },
+// ];
 
+// async function seedTokens() {
+//   for (const tokenData of mockTokens) {
+//     try {
+//       const existingToken = await Token.findOne({ symbol: tokenData.symbol, chainId: tokenData.chainId });
+//       if (existingToken) {
+//         console.log(`Token ${tokenData.symbol} already exists. Skipping...`);
+//       } else {
+//         console.log(`Creating new token: ${tokenData.symbol}`);
+//         await Token.create(tokenData);
+//       }
+//     } catch (error) {
+//       console.error(`Error processing token ${tokenData.symbol}:`, error);
+//     }
+//   }
+//   console.log('Token seeding completed');
+// }
+//!!!
 async function startServer() {
   try {
     await mongoose.connect(config.mongoURI);
     console.log('Connected to MongoDB');
 
     await removeConflictingIndex();
+    // await seedTokens(); //!!!
 
     const PORT = parseInt(config.port, 10);
     const SERVICE_ID = `store-service-${process.env.HOSTNAME || 'local'}`;
@@ -76,8 +102,7 @@ async function startServer() {
       await mongoose.connection.close();
       process.exit(0);
     });
-
-  } catch (err) {
+   } catch (err) {
     console.error('Failed to start server:', err);
     process.exit(1);
   }

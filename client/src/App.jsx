@@ -10,6 +10,8 @@ import Email from './pages/Email';
 import EmailOTP from './pages/EmailOTP';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
+import StoresPage from './pages/StoresPage';
+import StorePage from './pages/StorePage'; // New import for individual store page
 import { ProfileProvider } from './hooks/ProfileProvider';
 import PrivateRoute from './components/PrivateRoute';
 import NotFound from './pages/NotFound';
@@ -37,7 +39,8 @@ function App() {
         }>
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
-          {/* Add other dashboard-related routes here */}
+          <Route path="stores" element={<StoresPage />} />
+          <Route path=":storeId" element={<StorePage />} /> {/* New route for individual store */}
         </Route>
 
         {/* 404 Not Found route */}

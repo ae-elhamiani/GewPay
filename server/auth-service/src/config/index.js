@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 module.exports = {
-  port: process.env.PORT || 5001,
+  port: process.env.PORT || 5010,
   redisHost: process.env.REDIS_HOST || 'redis',
   redisPort: process.env.REDIS_PORT || 6379,
   jwtSecret: process.env.JWT_SECRET || 'your_jwt_secret',

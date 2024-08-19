@@ -1,0 +1,47 @@
+specVersion: 0.0.4
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: StoreContract
+    network: localhost
+    source:
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      abi: StoreContract
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Store
+        - Merchant
+      abis:
+        - name: StoreContract
+          file: ./abis/StoreContract.json
+      eventHandlers:
+        - event: StoreCreated(indexed address,uint256)
+          handler: handleStoreCreated
+      file: ./src/mapping.ts
+  - kind: ethereum
+    name: PaymentContract
+    network: localhost
+    source:
+      address: "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9"  # Replace with your actual PaymentContract address
+      abi: PaymentContract
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Store
+        - Merchant
+        - Payment
+      abis:
+        - name: PaymentContract
+          file: ./abis/PaymentContract.json
+      eventHandlers:
+        - event: PaymentProcessed(indexed address,indexed address,uint256,address,uint256,uint256,uint256)
+          handler: handlePaymentProcessed
+      file: ./src/mapping.ts

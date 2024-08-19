@@ -7,5 +7,7 @@ module.exports = {
   authServiceName: 'auth-service',
   merchantServiceName: 'merchant-service',
   notifServiceName: 'notif-service',
-  otpServiceName: 'otp-service'
+  otpServiceName: 'otp-service',
+  storeServiceName: 'store-service'
+
 };

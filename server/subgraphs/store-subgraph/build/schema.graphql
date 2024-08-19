@@ -1,0 +1,30 @@
+type Merchant @entity {
+  id: Bytes!
+  isRegistered: Boolean!
+  isPremium: Boolean!
+  storeCount: BigInt!
+  stores: [Store!]! @derivedFrom(field: "merchant")
+}
+
+type Store @entity {
+  id: ID!
+  storeId: BigInt!
+  merchant: Merchant!
+  acceptedTokens: [String!]!
+  transactionCount: BigInt!
+  transactionVolume: BigInt!
+  createdAt: BigInt!
+  payments: [Payment!]! @derivedFrom(field: "store")
+}
+
+type Payment @entity {
+  id: ID!
+  client: Bytes!
+  merchant: Merchant!
+  store: Store!
+  token: Bytes!
+  amount: BigInt!
+  fee: BigInt!
+  usdtEquivalent: BigInt!
+  timestamp: BigInt!
+}
