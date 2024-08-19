@@ -1,93 +1,90 @@
 const express = require('express');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
-const consul = require('consul');
+const consulClient = require('./services/consulClient');  // Ensure the path is correct
 const config = require('./config');
 const errorHandler = require('./middleware/errorHandler');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swaggerConfig');
 const cors = require('cors');
-
-const { ApolloServer } = require('apollo-server-express');
-const { PaymentError } = require('./middleware/customErrors');
-const { authMiddleware } = require('./middleware/auth');
-const typeDefs = require('./graphql/schema');
-const resolvers = require('./graphql/resolvers');
-
-const app = express();
+const createApolloServer = require('./apolloServer'); // Import the Apollo Server setup
+const orderRoutes = require('./routes/orderRoutes'); // Import the order routes
 
 require('dotenv').config();
 
-app.use(cors()); // Enable CORS for all routes
-app.use(authMiddleware);
+const app = express();
+
+app.use(cors());
 app.use(helmet());
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
-app.use(errorHandler);
-
-const consulClient = new consul({
-  host: config.consulHost,
-  port: config.consulPort,
-  promisify: true,
-});
+app.use('/api', orderRoutes); // Use the order routes under /api
 
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: ({ req }) => {
-    // Add the authenticated user to the context
-    return { user: req.user };
-  },
-  formatError: (err) => {
-    if (err.originalError instanceof PaymentError) {
-      return {
-        message: err.message,
-        code: err.originalError.code,
-      };
-    }
-    // For other errors, return a generic error message
-    return {
-      message: 'An unexpected error occurred',
-      code: 'INTERNAL_SERVER_ERROR',
-    };
-  },
-  plugins: [ApolloServerPluginLandingPageGraphQLPlayground()]
+// app.post('/api/orders', async (req, res) => {
+//   try {
+//     const orderData = req.body;
+//     const newOrder = new PaymentOrder(orderData);
+//     await newOrder.save();
+//     res.json({ success: true, customId: newOrder.customId, message: 'Order saved successfully' });
+//   } catch (error) {
+//     console.error('Error saving order:', error);
+//     res.status(500).json({ success: false, message: 'Error saving order' });
+//   }
+// });
 
-});
-
+// Health Check Endpoint for Consul
+app.get('/health', (req, res) => res.status(200).json({ status: 'OK', message: 'Payment service is healthy' }));
 
 const startServer = async () => {
   try {
-    await mongoose.connect(config.mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(config.mongoURI);
     console.log('Connected to MongoDB');
 
-    app.listen(config.port, async () => {
-      console.log(`Payment service running on port ${config.port}`);
+    const apolloServer = await createApolloServer(); // Use the separated Apollo Server setup
+    apolloServer.applyMiddleware({ app });
+    app.use(errorHandler);
+
+    const PORT = parseInt(config.port, 10);
+    const SERVICE_ID = `payment-service-${process.env.HOSTNAME || 'local'}`;
+
+    app.listen(PORT, async () => {
+      console.log(`Payment service running on port ${PORT}`);
+      console.log(`GraphQL endpoint available at http://localhost:${PORT}${apolloServer.graphqlPath}`);
       try {
         await consulClient.agent.service.register({
+          id: SERVICE_ID,
           name: 'payment-service',
           address: config.serviceAddress,
-          port: config.port,
+          port: PORT,
           check: {
-            http: `http://${config.serviceAddress}:${config.port}/health`,
+            http: `http://${config.serviceAddress}:${PORT}/health`,
             interval: '10s',
-          },
+            timeout: '5s',
+            deregistercriticalserviceafter: '1m'
+          }
         });
         console.log('Payment Service registered with Consul');
       } catch (err) {
         console.error('Failed to register with Consul:', err);
       }
     });
+
+    process.on('SIGINT', async () => {
+      try {
+        await consulClient.agent.service.deregister(SERVICE_ID);
+        console.log('Payment Service deregistered from Consul');
+      } catch (err) {
+        console.error('Failed to deregister Payment Service from Consul:', err);
+      }
+      await mongoose.connection.close();
+      process.exit(0);
+    });
+
   } catch (error) {
-    console.error('Failed to connect to MongoDB:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 };
-
-app.get('/health', (req, res) => res.status(200).send('OK'));
 
 startServer();

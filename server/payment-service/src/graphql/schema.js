@@ -1,79 +1,51 @@
-// File: src/graphql/schema.js
-
-const { gql } = require('apollo-server-express');
+const { gql } = require('apollo-server');
 
 const typeDefs = gql`
-  type PaymentOrder {
-    id: ID!
-    amount: Float!
-    currency: String!
-    status: PaymentStatus!
-    createdAt: String!
-    updatedAt: String!
+  type Item {
+    name: String!
+    quantity: Int!
+    price: Float!
   }
 
-  enum PaymentStatus {
-    PENDING
-    PROCESSING
-    COMPLETED
-    FAILED
+  type PaymentOrder {
+    id: ID!
+    customId: String!
+    merchantId: String!
+    storeId: String!
+    orderId: String!
+    amount: Float!
+    currency: String!
+    status: String!
+    createdAt: String!
+    expiresAt: String!
+    customerEmail: String!
+    items: [Item!]!
+  }
+
+  input ItemInput {
+    name: String!
+    quantity: Int!
+    price: Float!
   }
 
   input CreatePaymentOrderInput {
+    merchantId: String!
+    storeId: String!
+    orderId: String!
     amount: Float!
     currency: String!
+    customerEmail: String!
+    expiresAt: String!
+    items: [ItemInput!]!
   }
-
-  type PaymentError {
-    message: String!
-    code: String!
-  }
-
-  union PaymentResult = PaymentOrder | PaymentError
 
   type Query {
-    getPaymentOrder(id: ID!): PaymentOrder
-    getPaymentOrders(status: PaymentStatus): [PaymentOrder!]!
+    paymentOrder(customId: String!): PaymentOrder
+    paymentOrders: [PaymentOrder!]!
   }
 
   type Mutation {
-    createPaymentOrder(input: CreatePaymentOrderInput!): PaymentResult!
-    updatePaymentStatus(id: ID!, status: PaymentStatus!): PaymentResult!
-  }
-  
-  type WooCommerceOrder {
-    id: ID!
-    status: String!
-    currency: String!
-    total: String!
-    billing: BillingInfo
-    shipping: ShippingInfo
-  }
-
-  type BillingInfo {
-    first_name: String!
-    last_name: String!
-    address_1: String!
-    city: String!
-    state: String!
-    postcode: String!
-    country: String!
-    email: String!
-    phone: String
-  }
-
-  type ShippingInfo {
-    first_name: String!
-    last_name: String!
-    address_1: String!
-    city: String!
-    state: String!
-    postcode: String!
-    country: String!
-  }
-
-  extend type Query {
-    getWooCommerceOrder(orderId: ID!): WooCommerceOrder
+    createPaymentOrder(input: CreatePaymentOrderInput!): PaymentOrder
   }
 `;
 

@@ -1,10 +1,26 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 const PaymentOrderSchema = new mongoose.Schema({
-  userId: {
+  _id: {
     type: mongoose.Schema.Types.ObjectId,
+    auto: true,
+  },
+  customId: {
+    type: String,
+    default: uuidv4,
+  },
+  merchantId: {
+    type: String,
     required: true,
-    ref: 'User'
+  },
+  storeId: {
+    type: String,
+    required: true,
+  },
+  orderId: {
+    type: String,
+    required: true,
   },
   amount: {
     type: Number,
@@ -16,17 +32,22 @@ const PaymentOrderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'],
     default: 'PENDING',
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
+  customerEmail: {
+    type: String,
+    required: true,
   },
+  items: [{
+    name: String,
+    quantity: Number,
+    price: Number,
+  }],
 });
 
-module.exports = mongoose.model('PaymentOrder', PaymentOrderSchema);
+const PaymentOrder = mongoose.model('PaymentOrder', PaymentOrderSchema);
+module.exports = PaymentOrder;

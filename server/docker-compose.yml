@@ -161,11 +161,13 @@ services:
     
 
   payment-service:
-    build: ./store-service
+    build: ./payment-service
     ports:
       - '5006:5006'
     depends_on:
       consul:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5006/health"]
@@ -183,7 +185,7 @@ services:
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress_password
       WORDPRESS_DB_NAME: wordpress
-      PAYMENT_SERVICE_URL: 
+      PAYMENT_SERVICE_URL: http://payment-service:5006/graphql
       AUTH_SERVICE_URL: 
     volumes:
       - wordpress_data:/var/www/html
