@@ -21,18 +21,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use('/api', orderRoutes); // Use the order routes under /api
 
 
-// app.post('/api/orders', async (req, res) => {
-//   try {
-//     const orderData = req.body;
-//     const newOrder = new PaymentOrder(orderData);
-//     await newOrder.save();
-//     res.json({ success: true, customId: newOrder.customId, message: 'Order saved successfully' });
-//   } catch (error) {
-//     console.error('Error saving order:', error);
-//     res.status(500).json({ success: false, message: 'Error saving order' });
-//   }
-// });
-
 // Health Check Endpoint for Consul
 app.get('/health', (req, res) => res.status(200).json({ status: 'OK', message: 'Payment service is healthy' }));
 

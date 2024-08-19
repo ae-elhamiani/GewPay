@@ -1,4 +1,7 @@
 <?php
+
+// commented plugin 
+
 // /*
 // Plugin Name: GWEPAY Crypto Payment Gateway
 // Description: Accept payments using Gwepay.
