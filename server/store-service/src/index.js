@@ -8,21 +8,9 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swaggerConfig');
 // const Token = require('./models/Token'); //!!!!
 
-
 const app = express();
 
 app.use(express.json());
-app.use(cors());
-
-const corsOptions = {
-  origin: 'http://localhost:8080', // Replace with the URL of your WordPress site
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true, // Allows cookies to be sent
-  optionsSuccessStatus: 204 // Some legacy browsers (IE11, various SmartTVs) choke on 204
-};
-
-app.use(cors(corsOptions));
-
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Store service is healthy' });

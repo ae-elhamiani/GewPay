@@ -27,7 +27,7 @@ async function startServer() {
       promisify: true
     });
 
-    const PORT = parseInt(process.env.PORT || '5001', 10);
+    const PORT = parseInt(process.env.PORT || '5010', 10);
 
     app.listen(PORT, async () => {
       console.log(`Auth service running on port ${PORT}`);

@@ -23,7 +23,7 @@ async function main() {
 
 
   // Get signers
-  const [owner, merchant1, merchant2, merchant3, merchant4,  merchant5, merchant6,merchant7, merchant8, merchant] = await ethers.getSigners();
+  const [owner, merchant1, merchant2, merchant3, merchant4,  merchant5, merchant6,merchant7, merchant8, merchant9, merchant] = await ethers.getSigners();
 
   console.log("Using owner address:", owner.address);
   console.log("Using merchant address:", merchant.address);
