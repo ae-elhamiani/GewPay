@@ -23,7 +23,7 @@ async function main() {
 
 
   // Get signers
-  const [owner, merchant1, merchant2, merchant3, merchant4,  merchant5, merchant6,merchant7, merchant8, merchant9, merchant] = await ethers.getSigners();
+  const [owner, merchant1, merchant2, merchant3, merchant4,  merchant5, merchant6,merchant7, merchant8, merchant9, merchant10, merchant] = await ethers.getSigners();
 
   console.log("Using owner address:", owner.address);
   console.log("Using merchant address:", merchant.address);
@@ -40,8 +40,10 @@ async function main() {
   ];
 
   const tokenAddresses2 = [
-    "0x3456789012345678901234567890123456789012",
-    "0x1234567890123456789012345678901234567890",
+    '0x1234567890123456789012345678901234567810',
+    '0x2345678901234567890123456789012345678911',
+    '0x3456789012345678901234567890123456789022',
+    '0x4567890123456789012345678901234567890133',
     "0x0000000000000000000000000000000000000000"
   ];
 
@@ -57,27 +59,29 @@ async function main() {
   const ZERO_ADDRESS = ethers.ZeroAddress;
   console.log("Processing payment...");
   
-  const paymentAmount = ethers.parseEther("0.003"); // 0.1 ETH
+  const paymentAmount = ethers.parseEther("0.23"); // 0.1 ETH
 
   const ERC20Mock = await ethers.getContractFactory("ERC20Mock");
     // erc20Token = await ERC20Mock.deploy("Test Token", "TST", "0x3456789012345678901234567890123456789012", ethers.parseEther("1000"));
 
   // Add supported tokens
   console.log("Adding supported tokens...");
-//   await ownerContract.connect(owner).addTokens([await erc20Token.getAddress(), ZERO_ADDRESS]);    //////add token
+  // await ownerContract.connect(owner).addTokens([await erc20Token.getAddress(), ZERO_ADDRESS]);    //////add token
 //   console.log("Tokens added");
  
 
   console.log("Registering merchant...");
-  await merchantRegister.connect(merchant).registerMerchant();      /////register
-  await merchantRegister.connect(merchant).upgradeToPremium();      /////upgrade
+  // await merchantRegister.connect(merchant).registerMerchant();      /////register
+  // await merchantRegister.connect(merchant).upgradeToPremium();      /////upgrade
 //   console.log("Merchant registered");
 
   console.log("Creating store...");
-//   await storeContract.connect(merchant).createStore(tokenAddresses1);   ///create store
+  await storeContract.connect(merchant).createStore(tokenAddresses2);   ///create store
 //   console.log("Store created");
 //   await storeContract.connect(merchant).createStore(tokenAddresses2);
 //   await storeContract.connect(merchant).createStore([await erc20Token.getAddress(), ZERO_ADDRESS]);
+
+
 console.log(merchant1.address);
 console.log(merchant2.address);
 console.log(merchant3.address);
@@ -86,7 +90,7 @@ console.log(merchant5.address);
 console.log(merchant6.address);
 console.log(merchant7.address);
   console.log("make payment...");
-//   await paymentContract.connect(merchant).processPayment(merchant7.address,3,ZERO_ADDRESS,paymentAmount,paymentAmount,{ value: paymentAmount })
+  await paymentContract.connect(merchant7).processPayment(merchant.address,6,ZERO_ADDRESS,paymentAmount,paymentAmount,{ value: paymentAmount })
 
   // Verify the store was created
 //   const storeCount = await storeContract.storeCounts(merchant.address);

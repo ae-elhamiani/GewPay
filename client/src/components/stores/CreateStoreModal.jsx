@@ -218,7 +218,7 @@ const CreateStoreModal = ({ isOpen, onClose, onCreateStore, isDarkMode }) => {
                   : 'bg-purple-500 hover:bg-purple-600'
               } text-white transition-colors duration-200`}
             >
-              Go to Dashboard
+              Go to setup
             </button>
           </div>
         );

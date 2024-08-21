@@ -19,7 +19,7 @@ const TabButton = ({ tab, activeTab, setActiveTab, isDarkMode }) => (
 
 const ApiKeySection = ({ store, generateApiKey, regenerateApiKey, copyToClipboard, copiedField, isDarkMode }) => {
   const maskApiKey = (apiKey) => {
-    if (!apiKey || typeof apiKey !== 'string') return 'Not Available';
+    if (!apiKey || typeof apiKey !== 'string') return 'Generating ... ';
     return `${apiKey.slice(0, 8)}***********************************${apiKey.slice(-8)}`;
   };
 
@@ -227,7 +227,7 @@ const StorePage = () => {
                   <p className="text-2xl font-bold">${(store.todayStats.transactionVolume / 1e18).toFixed(4)} ETH</p>
                 </div>
                 <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-purple-50'}`}>
-                  <h3 className="text-lg font-medium text-purple-600">Total Turnover</h3>
+                  <h3 className="text-lg font-medium text-purple-600">Total Income</h3>
                   <p className="text-2xl font-bold">${(store.transactionVolume / 1e18).toFixed(4)} ETH</p>
                 </div>
               </div>

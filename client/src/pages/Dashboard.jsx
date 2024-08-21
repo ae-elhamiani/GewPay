@@ -13,11 +13,11 @@ const Dashboard = () => {
   const { isDarkMode } = useOutletContext();
 
   const clientData = useMemo(() => [
-    { id: '0x0234234', email: 'gmail@gmail.com', orders: 8000, volume: 130, adsSpent: 9500, refunds: 13, color: '#8B5CF6' },
-    { id: '0xk234rc4', email: 'gamma@gmail.com', orders: 3000, volume: 45, adsSpent: 4500, refunds: 18, color: '#EC4899' },
-    { id: '0x0b342234', email: 'none', orders: 6000, volume: 80, adsSpent: 5800, refunds: 11, color: '#10B981' },
-    { id: '0xr142234', email: 'gmail@om', orders: 4000, volume: 500, adsSpent: 4700, refunds: 18, color: '#F59E0B' },
-    { id: '0x3r35g34', email: 'gmail.com', orders: 2000, volume: 15, adsSpent: 2500, refunds: 10, color: '#EF4444' },
+    // { id: '0x0234234', email: 'gmail@gmail.com', orders: 8000, volume: 130, adsSpent: 9500, refunds: 13, color: '#8B5CF6' },
+    // { id: '0xk234rc4', email: 'gamma@gmail.com', orders: 3000, volume: 45, adsSpent: 4500, refunds: 18, color: '#EC4899' },
+    // { id: '0x0b342234', email: 'none', orders: 6000, volume: 80, adsSpent: 5800, refunds: 11, color: '#10B981' },
+    // { id: '0xr142234', email: 'gmail@om', orders: 4000, volume: 500, adsSpent: 4700, refunds: 18, color: '#F59E0B' },
+    // { id: '0x3r35g34', email: 'gmail.com', orders: 2000, volume: 15, adsSpent: 2500, refunds: 10, color: '#EF4444' },
   ], []);
 
   const handleSearchChange = useCallback((e) => setSearchTerm(e.target.value), []);
