@@ -16,7 +16,7 @@ const customTheme = {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <ThirdwebProvider desiredChainId={activeChainId} theme={customTheme} clientId="ee041666e57751f9c8ecdd8526a88086"   >
+    <ThirdwebProvider desiredChainId={activeChainId}  activeChain="ethereum" theme={customTheme} clientId="ee041666e57751f9c8ecdd8526a88086"   >
       <BrowserRouter>
         <App />
       </BrowserRouter>

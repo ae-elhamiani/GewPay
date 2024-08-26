@@ -188,7 +188,9 @@ services:
       WORDPRESS_DB_PASSWORD: wordpress_password
       WORDPRESS_DB_NAME: wordpress
       PAYMENT_SERVICE_URL: http://payment-service:5006/graphql
-      AUTH_SERVICE_URL: 
+      GWEPAY_FRONTEND_HOST: http://host.docker.internal
+      GWEPAY_FRONTEND_PORT: 5173
+
     volumes:
       - wordpress_data:/var/www/html
       - ./wordpress/wp-content/plugins/gwepay-payment-gateway:/var/www/html/wp-content/plugins/gwepay-payment-gateway

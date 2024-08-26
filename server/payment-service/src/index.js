@@ -1,35 +1,45 @@
 const express = require('express');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
-const consulClient = require('./services/consulClient');  // Ensure the path is correct
+const consulClient = require('./services/consulClient');
 const config = require('./config');
 const errorHandler = require('./middleware/errorHandler');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swaggerConfig');
 const cors = require('cors');
-const createApolloServer = require('./apolloServer'); // Import the Apollo Server setup
-const orderRoutes = require('./routes/orderRoutes'); // Import the order routes
-
+const createApolloServer = require('./apolloServer');
+const orderRoutes = require('./routes/orderRoutes');
+const conversionRoutes = require('./routes/conversionRoutes');
+const PaymentSession = require('./models/PaymentSession');
 require('dotenv').config();
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+  })
+);
+
 app.use(helmet());
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
-app.use('/api', orderRoutes); // Use the order routes under /api
+
+app.use('/api', orderRoutes);
+app.use('/api', conversionRoutes);
 
 
 // Health Check Endpoint for Consul
-app.get('/health', (req, res) => res.status(200).json({ status: 'OK', message: 'Payment service is healthy' }));
+app.get('/health', (req, res) =>
+  res.status(200).json({ status: 'OK', message: 'Payment service is healthy' })
+);
 
 const startServer = async () => {
   try {
     await mongoose.connect(config.mongoURI);
     console.log('Connected to MongoDB');
 
-    const apolloServer = await createApolloServer(); // Use the separated Apollo Server setup
+    const apolloServer = await createApolloServer();
     apolloServer.applyMiddleware({ app });
     app.use(errorHandler);
 
@@ -38,7 +48,9 @@ const startServer = async () => {
 
     app.listen(PORT, async () => {
       console.log(`Payment service running on port ${PORT}`);
-      console.log(`GraphQL endpoint available at http://localhost:${PORT}${apolloServer.graphqlPath}`);
+      console.log(
+        `GraphQL endpoint available at http://localhost:${PORT}${apolloServer.graphqlPath}`
+      );
       try {
         await consulClient.agent.service.register({
           id: SERVICE_ID,
@@ -49,8 +61,8 @@ const startServer = async () => {
             http: `http://${config.serviceAddress}:${PORT}/health`,
             interval: '10s',
             timeout: '5s',
-            deregistercriticalserviceafter: '1m'
-          }
+            deregistercriticalserviceafter: '1m',
+          },
         });
         console.log('Payment Service registered with Consul');
       } catch (err) {
@@ -68,7 +80,6 @@ const startServer = async () => {
       await mongoose.connection.close();
       process.exit(0);
     });
-
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);

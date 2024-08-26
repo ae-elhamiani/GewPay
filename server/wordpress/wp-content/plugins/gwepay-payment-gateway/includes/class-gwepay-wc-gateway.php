@@ -7,26 +7,30 @@ if (!defined('ABSPATH')) {
 }
 
 use Gwepay\Gateway\Gwepay_Validator;
-use Gwepay\Gateway\Gwepay_Payment_Handler;
 
-class Gwepay_WC_Gateway extends \WC_Payment_Gateway {
+class Gwepay_WC_Gateway extends \WC_Payment_Gateway_CC {
 
     private $validator;
     protected $api_key;
     protected $store_id;
-    private $payment_handler;
 
 
     public function __construct() {
         $this->id                 = 'gwepay';
-        $this->icon               = $this->get_icon(); // Use the get_icon() method
+        $this->icon               = ''; // Use the get_icon() method
         $this->has_fields         = true;
         $this->method_title       = esc_html__('Gwepay Payment', 'gwepay-payment-gateway');
         $this->method_description = esc_html__('Accept Crypto Payments using Gwepay.', 'gwepay-payment-gateway');
-    
+        $this->supports = array(
+            'products',
+            'refunds',
+            'tokenization',
+            'add_payment_method',
+            'woocommerce-blocks',
+        );
+
         // Initialize the validator
         $this->validator = new Gwepay_Validator();
-        $this->payment_handler = new Gwepay_Payment_Handler($this->api_key, $this->store_id);
 
         // Load the settings
         $this->init_form_fields();
@@ -38,10 +42,22 @@ class Gwepay_WC_Gateway extends \WC_Payment_Gateway {
         $this->enabled      = $this->get_option('enabled');
         $this->api_key      = $this->get_option('api_key');
         $this->store_id     = $this->get_option('store_id');
-    
-        // Add actions
-        add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));        
 
+
+        add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));        
+        error_log("GwePay: Gwepay_WC_Gateway constructed with supports: " . print_r($this->supports, true));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+
+    }
+
+    public function get_supported_features() {
+        return $this->supports;
+    }
+
+    public function is_available() {
+        $is_available = parent::is_available();
+        error_log("GwePay: is_available called, result: " . ($is_available ? 'true' : 'false'));
+        return $is_available;
     }
 
     public function init_form_fields() {
@@ -52,14 +68,6 @@ class Gwepay_WC_Gateway extends \WC_Payment_Gateway {
                 'label'   => esc_html__('Enable Gwepay Payment', 'gwepay-payment-gateway'),
                 'default' => 'yes',
             ),
-            'api_key' => array(
-                'title'       => esc_html__('API Key', 'gwepay-payment-gateway'),
-                'type'        => 'text',
-                'description' => esc_html__('Enter your Gwepay API Key here.', 'gwepay-payment-gateway'),
-                'default'     => '',
-                'desc_tip'    => true,
-                'placeholder' => esc_html__('Set Your API Key', 'gwepay-payment-gateway'),
-            ),
             'store_id' => array(
                 'title'       => esc_html__('Store ID', 'gwepay-payment-gateway'),
                 'type'        => 'text',
@@ -68,57 +76,21 @@ class Gwepay_WC_Gateway extends \WC_Payment_Gateway {
                 'desc_tip'    => true,
                 'placeholder' => esc_html__('Set Your Store ID', 'gwepay-payment-gateway'),
             ),
+            'api_key' => array(
+                'title'       => esc_html__('API Key', 'gwepay-payment-gateway'),
+                'type'        => 'text',
+                'description' => esc_html__('Enter your Gwepay API Key here.', 'gwepay-payment-gateway'),
+                'default'     => '',
+                'desc_tip'    => true,
+                'placeholder' => esc_html__('Set Your API Key', 'gwepay-payment-gateway'),
+            ),           
         );
-    }
-
-    public function get_icon() {
-        ob_start();
-        include plugin_dir_path(__FILE__) . '../templates/gwepay-icon.php';
-        $icon_html = ob_get_clean();
-        return apply_filters('woocommerce_gateway_icon', $icon_html, $this->id);
     }
 
     private function log($message) {
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log("Gwepay: $message");
         }
-    }
-
-    public function payment_fields() {
-        echo '<div style="margin-bottom: 10px;">';
-        echo '<strong>' . esc_html__('Pay securely using your preferred cryptocurrency. Fast, reliable, and secure transactions for your convenience.', 'gwepay-payment-gateway') . '</strong>';
-        echo '</div>';
-    }
-
-    public function process_payment($order_id) {
-        $order = wc_get_order($order_id);
-    
-        if ($this->send_order_to_microservice($order_id)) {
-            // Save order to database
-            $order->update_status('pending', __('Awaiting cryptocurrency payment', 'gwepay-payment-gateway'));
-    
-            // Empty the cart
-            WC()->cart->empty_cart();
-    
-            // Redirect to the payment page
-            return array(
-                'result'   => 'success',
-                'redirect' => $this->get_payment_url($order_id),
-            );
-        } else {
-            wc_add_notice(__('Payment error:', 'gwepay-payment-gateway') . ' Unable to process order.', 'error');
-            return;
-        }
-    }
-
-    private function get_payment_url($order_id) {
-        return add_query_arg(
-            array(
-                'order_id' => $order_id,
-                'key'      => wp_create_nonce('gwepay_payment_' . $order_id),
-            ),
-            home_url('/gwepay-payment/')
-        );
     }
 
     public function process_admin_options() {
@@ -172,8 +144,8 @@ class Gwepay_WC_Gateway extends \WC_Payment_Gateway {
             'currency' => $order->get_currency(),
             'customerEmail' => $order->get_billing_email(),
             'items' => $items,
-            'createdAt' => date('Y-m-d H:i:s'),       // Default value, using current timestamp
-
+            'storeLink' => get_home_url(),
+            'createdAt' => date('Y-m-d H:i:s'),
         );
 
         $response = wp_remote_post('http://payment-service:5006/api/orders', array(
@@ -199,5 +171,153 @@ class Gwepay_WC_Gateway extends \WC_Payment_Gateway {
             return false;
         }
     }
+    
+
+    public function supports($feature) {
+        $supports = parent::supports($feature);
+        
+        if ('woocommerce-blocks' === $feature) {
+            return true;
+        }
+        
+        return $supports;
+    }
+
+
+    // public function process_payment($order_id) {
+    //     $order = wc_get_order($order_id);
+        
+    //     $this->log("Processing payment for order ID: $order_id");
+    
+    //     // Step 1 & 2: Send order data to the microservice (Node.js backend)
+    //     $order_saved = $this->send_order_to_microservice($order_id);
+    
+    //     if (!$order_saved) {
+    //         $this->log("Failed to save order to microservice for order ID: $order_id");
+    //         wc_add_notice(__('Payment error:', 'gwepay-payment-gateway') . ' Unable to save order.', 'error');
+    //         return array('result' => 'failure');
+    //     }
+    
+    //     $this->log("Order saved to microservice successfully for order ID: $order_id");
+    
+    //     // Step 3: Send a request to your backend to retrieve the sessionId for this order
+    //     $order_data = array('orderId' => $order_id);
+    //     $response = wp_remote_post('http://payment-service:5006/api/get-session-id', array(
+    //         'method'    => 'POST',
+    //         'headers'   => array('Content-Type' => 'application/json'),
+    //         'body'      => json_encode($order_data),
+    //     ));
+    
+    //     // Check if the request was successful and retrieve the sessionId
+    //     if (is_wp_error($response)) {
+    //         $this->log("Failed to retrieve session ID for order ID: $order_id");
+    //         wc_add_notice(__('Payment error:', 'gwepay-payment-gateway') . ' Unable to retrieve session ID.', 'error');
+    //         return array('result' => 'failure');
+    //     }
+    
+    //     $body = json_decode(wp_remote_retrieve_body($response), true);
+    
+    //     if (isset($body['sessionId'])) {
+    //         $session_id = $body['sessionId'];
+    
+    //         $this->log("Payment session ID retrieved: $session_id");
+    
+    //         // Step 4: Update order status and save session ID to order meta
+    //         $order->update_status('pending', __('Awaiting cryptocurrency payment', 'gwepay-payment-gateway'));
+    //         $order->update_meta_data('_gwepay_session_id', $session_id);
+    //         $order->save();
+    
+    //         // Step 5: Empty the cart
+    //         WC()->cart->empty_cart();
+    
+    //         // Step 6: Redirect the user to the payment session page with the sessionId
+    //         // $redirect_url = "http://localhost:5173/payment-session/{$session_id}";
+    //         $redirect_url = "http://localhost:5173/payment-session/{$session_id}";
+
+    
+    //         $this->log("Redirecting to payment page: $redirect_url for order ID: $order_id");
+    
+    //         // Return the redirect URL and success status
+    //         return array(
+    //             'result'   => 'success',
+    //             'redirect' => $redirect_url,
+    //             'is_new_tab' => true // Custom flag to indicate new tab opening
+    //         );
+            
+    //     } else {
+    //         $this->log("Failed to retrieve session ID from the backend for order ID: $order_id");
+    //         wc_add_notice(__('Payment error:', 'gwepay-payment-gateway') . ' Unable to retrieve session ID.', 'error');
+    //         return array('result' => 'failure');
+    //     }
+    // }
+    
+    public function process_payment($order_id) {
+        ob_start(); // Start output buffering
+        $order = wc_get_order($order_id);
+        
+        $this->log("Processing payment for order ID: $order_id");
+    
+        $order_saved = $this->send_order_to_microservice($order_id);
+    
+        if (!$order_saved) {
+            $this->log("Failed to save order to microservice for order ID: $order_id");
+            wc_add_notice(__('Payment error:', 'gwepay-payment-gateway') . ' Unable to save order.', 'error');
+            ob_end_clean(); // Clean the buffer before returning
+            return array('result' => 'failure');
+        }
+    
+        $this->log("Order saved to microservice successfully for order ID: $order_id");
+    
+        $order_data = array('orderId' => $order_id);
+        $response = wp_remote_post('http://payment-service:5006/api/get-session-id', array(
+            'method'    => 'POST',
+            'headers'   => array('Content-Type' => 'application/json'),
+            'body'      => json_encode($order_data),
+        ));
+    
+        if (is_wp_error($response)) {
+            $this->log("Failed to retrieve session ID for order ID: $order_id");
+            wc_add_notice(__('Payment error:', 'gwepay-payment-gateway') . ' Unable to retrieve session ID.', 'error');
+            ob_end_clean(); // Clean the buffer before returning
+            return array('result' => 'failure');
+        }
+    
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+    
+        if (isset($body['sessionId'])) {
+            $session_id = $body['sessionId'];
+    
+            $this->log("Payment session ID retrieved: $session_id");
+    
+            $order->update_status('pending', __('Awaiting cryptocurrency payment', 'gwepay-payment-gateway'));
+            $order->update_meta_data('_gwepay_session_id', $session_id);
+            $order->save();
+    
+            WC()->cart->empty_cart();
+    
+            $redirect_url = "http://localhost:5173/payment-session/{$session_id}";
+    
+            $this->log("Redirecting to payment page: $redirect_url for order ID: $order_id");
+            ob_end_clean(); // Clean the buffer before returning
+            return array(
+                'result'   => 'success',
+                'redirect' => $redirect_url,
+            );
+            
+        } else {
+            $this->log("Failed to retrieve session ID from the backend for order ID: $order_id");
+            wc_add_notice(__('Payment error:', 'gwepay-payment-gateway') . ' Unable to retrieve session ID.', 'error');
+            ob_end_clean(); // Clean the buffer before returning
+            return array('result' => 'failure');
+        }
+    }
+    
+    
+    public function enqueue_scripts() {
+        if (is_checkout() && !is_order_received_page()) {
+            wp_enqueue_script('gwepay-checkout', plugins_url('js/gwepay-checkout.js', dirname(__FILE__)), array('jquery'), '1.0', true);
+        }
+    }
+
+
 }
-?>
