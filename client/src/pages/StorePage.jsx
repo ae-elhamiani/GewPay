@@ -88,8 +88,8 @@ const StorePage = () => {
       const response = await storeService.getStoreById(storeId);
       setStore(response.data);
     } catch (err) {
-      setError('Failed to fetch store data');
-      toast.error('Failed to fetch store data');
+      setError(err.response?.data?.message || 'An error occurred while fetching store data. Please try again later.');
+      toast.error('Failed to fetch store data. Please try again later.');
     } finally {
       setLoading(false);
     }

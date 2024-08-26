@@ -11,10 +11,13 @@ import EmailOTP from './pages/EmailOTP';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import StoresPage from './pages/StoresPage';
-import StorePage from './pages/StorePage'; // New import for individual store page
+import StorePage from './pages/StorePage';
 import { ProfileProvider } from './hooks/ProfileProvider';
 import PrivateRoute from './components/PrivateRoute';
 import NotFound from './pages/NotFound';
+import Settings from './pages/Settings';
+import KYCSettings from './pages/KYCSettings';
+import SecuritySettings from './pages/SecuritySettings';
 
 function App() {
   return (
@@ -40,9 +43,13 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
           <Route path="stores" element={<StoresPage />} />
-          <Route path=":storeId" element={<StorePage />} /> {/* New route for individual store */}
+          <Route path=":storeId" element={<StorePage />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="settings/kyc" element={<KYCSettings />} />
+          <Route path="settings/security" element={<SecuritySettings />} />
         </Route>
 
+       
         {/* 404 Not Found route */}
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useDisconnect } from '@thirdweb-dev/react';
 
+
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
@@ -65,16 +66,15 @@ const DashboardLayout = () => {
 
   return (
     <div className={`flex min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-purple-50 via-white to-pink-50'}`}>
-      <Sidebar 
-        isDarkMode={isDarkMode} 
-        isSidebarOpen={isSidebarOpen} 
+      <Sidebar
+        isDarkMode={isDarkMode}
+        isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
-        userType={userType}
         handleUpgrade={handleUpgrade}
       />
-      <div className="flex-1 flex flex-col ml-[17rem]">
-        <Header 
-          isDarkMode={isDarkMode} 
+      <div className={`flex-1 flex flex-col ${isSidebarOpen ? 'ml-72' : 'ml-28'} transition-all duration-300`}>
+        <Header
+          isDarkMode={isDarkMode}
           toggleDarkMode={toggleDarkMode}
           onLogout={handleLogout}
           userName={userData.name}

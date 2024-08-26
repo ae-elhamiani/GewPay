@@ -9,7 +9,7 @@ module.exports = {
       },
       width: {
         'custom': '28rem', // Example custom width
-        '72': '18rem',     // Another example
+        '76': '19rem',     // Another example
       },
       fontSize: {
         'xxl': '43px',// Custom xxlarge font size
