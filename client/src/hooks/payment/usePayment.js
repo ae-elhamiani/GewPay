@@ -1,145 +1,166 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { GET_PAYMENT_SESSION } from '../../graphql/queries';
-import { CryptoTransactionTimer } from '../../components/payments/CryptoTransactionTimer';
 import storeService from '../../services/storeService';
+import { toast } from 'react-toastify';
 
-// Import your contract's ABI and set the contract address
-import PaymentContractABI from '../../abis/PaymentContract.json';
-const paymentContractAddress = '0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9'; // Replace with your deployed contract address
-const AddressZero = '0x0000000000000000000000000000000000000000';
+const PAYMENT_CONTRACT_ADDRESS = '0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9';
+
+const ABI = [
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "storeId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "usdtEquivalent",
+        "type": "uint256"
+      }
+    ],
+    "name": "processPayment",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  }
+];
 
 const usePayment = () => {
   const { sessionId } = useParams();
   const [conversionData, setConversionData] = useState(null);
   const [error, setError] = useState(null);
-  const [remainingTime, setRemainingTime] = useState(null); // 15 minutes in seconds
+  const [remainingTime, setRemainingTime] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [selectedToken, setSelectedToken] = useState('');
   const [cryptoPrice, setCryptoPrice] = useState(null);
+  const [paymentProgress, setPaymentProgress] = useState(0);
+  const contractRef = useRef(null);
   const timerRef = useRef(null);
-  
 
-  const {
-    loading,
-    error: queryError,
-    data,
-  } = useQuery(GET_PAYMENT_SESSION, {
+  const { loading, error: queryError, data } = useQuery(GET_PAYMENT_SESSION, {
     variables: { sessionId },
   });
 
-  useEffect(() => {
-    if (data && data.getPaymentSession) {
-      const expiresAt = new Date(data.getPaymentSession.expiresAt);
-      const currentTime = new Date();
-      const remainingTimeInSeconds = Math.round(
-        (expiresAt - currentTime) / 1000
-      );
+  const session = data?.getPaymentSession;
 
-      setRemainingTime(remainingTimeInSeconds); // Set the initial remaining time
+  useEffect(() => {
+    if (session) {
+      const expiresAt = new Date(session.expiresAt);
+      const currentTime = new Date();
+      const remainingTimeInSeconds = Math.round((expiresAt - currentTime) / 1000);
+
+      setRemainingTime(remainingTimeInSeconds);
 
       timerRef.current = setInterval(() => {
         setRemainingTime((prevTime) => {
           if (prevTime <= 1) {
             clearInterval(timerRef.current);
-            setError(
-              'Transaction time has expired. Please start a new session.'
-            );
+            toast.error('Transaction time has expired. Please start a new session.');
             return 0;
           }
           return prevTime - 1;
         });
       }, 1000);
 
-      return () => {
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-        }
-      };
+      return () => clearInterval(timerRef.current);
     }
-  }, [data]);
+  }, [session]);
 
   useEffect(() => {
     const fetchSupportedTokens = async () => {
-      try {
-        if (data?.getPaymentSession) {
-          const storeId = data.getPaymentSession.storeId; // No need to split
-          const response = await storeService.getAcceptedTokens(storeId);
-          console.log('Fetched Tokens:', response.data); // Debugging log
+      if (session) {
+        try {
+          const response = await storeService.getAcceptedTokens(session.storeId);
+          console.log('Fetched tokens:', response.data);
           setTokens(response.data);
+        } catch (error) {
+          console.error('Error fetching supported tokens:', error);
+          toast.error('Failed to fetch supported tokens. Please try again later.');
         }
-      } catch (error) {
-        console.error('Error fetching supported tokens:', error);
-        setError('Failed to fetch supported tokens. Please try again later.');
       }
     };
 
     fetchSupportedTokens();
-  }, [data]);
+  }, [session]);
 
   useEffect(() => {
     const fetchConversion = async () => {
-      if (data?.getPaymentSession && selectedToken) {
-        console.log('Attempting to fetch conversion data with:', {
-          amount: data.getPaymentSession.amount,
-          from: data.getPaymentSession.currency.toLowerCase(),
-          to: selectedToken.toLowerCase(),
-        });
-
+      if (session && selectedToken) {
         try {
-          const response = await axios.get(
-            'http://localhost:5006/api/convert',
-            {
-              params: {
-                amount: data.getPaymentSession.amount,
-                from: data.getPaymentSession.currency.toLowerCase(),
-                to: selectedToken.toLowerCase(),
-              },
-            }
-          );
-
-          console.log('Conversion API response:', response.data);
+          const response = await axios.get('http://localhost:5006/api/convert', {
+            params: {
+              amount: session.amount,
+              from: session.currency.toLowerCase(),
+              to: selectedToken.toLowerCase(),
+            },
+          });
 
           if (response.data) {
             setConversionData({
               ...response.data,
-              ethereumAddress: data.getPaymentSession.merchantId,
-              storeId: data.getPaymentSession.storeId,
+              ethereumAddress: session.merchantId,
+              storeId: session.storeId,
             });
             setCryptoPrice(response.data.convertedAmount);
-            console.log('Updated conversionData:', response.data);
           } else {
-            setError('Conversion data is not available.');
+            throw new Error('Conversion data is not available.');
           }
         } catch (error) {
           console.error('Error fetching conversion:', error);
-          setError('Failed to fetch conversion data.');
+          toast.error('Failed to fetch conversion data. Please try again.');
         }
       }
     };
 
     fetchConversion();
-  }, [data, selectedToken]);
+  }, [session, selectedToken]);
 
-  const handlePayButtonClick = async () => {
-    if (!conversionData) {
-      setError(
-        'Conversion data is not available. Cannot proceed with payment.'
+  const loadContract = useCallback(async (signer) => {
+    try {
+      const newContract = new ethers.Contract(
+        PAYMENT_CONTRACT_ADDRESS,
+        ABI,
+        signer
       );
-      return;
+      return newContract;
+    } catch (error) {
+      console.error('Error loading contract:', error);
+      toast.error(`Failed to load payment contract: ${error.message}`);
+      return null;
+    }
+  }, []);
+
+  const handlePayButtonClick = useCallback(async () => {
+    if (!conversionData || !selectedToken) {
+      toast.error('Conversion data or token not available. Cannot proceed with payment.');
+      return null;
     }
 
     const { convertedAmount, ethereumAddress, storeId } = conversionData;
-    if (convertedAmount === undefined || !ethereumAddress || !storeId) {
-      setError('Conversion data is incomplete. Cannot proceed with payment.');
-      console.error(
-        'Conversion data is missing necessary fields:',
-        conversionData
-      );
-      return;
+    if (!convertedAmount || !ethereumAddress || !storeId) {
+      toast.error('Conversion data is incomplete. Cannot proceed with payment.');
+      console.error('Conversion data is missing necessary fields:', conversionData);
+      return null;
     }
 
     try {
@@ -152,35 +173,77 @@ const usePayment = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
 
-      const paymentContract = new ethers.Contract(
-        paymentContractAddress,
-        PaymentContractABI.abi,
-        signer
-      );
+      const paymentContract = await loadContract(signer);
+      if (!paymentContract) {
+        throw new Error('Failed to load payment contract');
+      }
 
-      const amountInEth = ethers.utils.parseEther(convertedAmount.toString());
+      const selectedTokenData = tokens.find(t => t.symbol === selectedToken);
+      if (!selectedTokenData) {
+        console.error('Available tokens:', tokens);
+        throw new Error(`Selected token data not found for symbol: ${selectedToken}`);
+      }
 
-      console.log('Parsed amountInEth:', amountInEth.toString());
+      console.log(selectedTokenData.addressToken);
+      if (!selectedTokenData.addressToken) {
+        throw new Error(`Token address is undefined for symbol: ${selectedToken}`);
+      }
+
+      const amountInToken = ethers.utils.parseUnits(convertedAmount.toString(), selectedTokenData.decimals);
+
+      const storeIdNumber = parseInt(storeId.split('-')[1], 10);
+      if (isNaN(storeIdNumber)) {
+        throw new Error(`Invalid storeId format: ${storeId}`);
+      }
+      console.log('Payment parameters:', {
+        ethereumAddress,
+        storeId: storeIdNumber,
+        tokenAddress: selectedTokenData.addressToken,
+        amount: amountInToken.toString(),
+        usdtEquivalent: amountInToken.toString(),
+      });
+
+      setPaymentProgress(25);
+      toast.info('Initiating transaction...');
 
       const tx = await paymentContract.processPayment(
         ethereumAddress,
-        parseInt(storeId),
-        AddressZero,
-        amountInEth
+        storeIdNumber,
+        selectedTokenData.addressToken,
+        amountInToken,
+        amountInToken,
+        { value: selectedTokenData.addressToken === ethers.constants.AddressZero ? amountInToken : 0 }
       );
 
-      console.log(`Transaction hash: ${tx.hash}`);
-      alert('Payment sent successfully!');
+      setPaymentProgress(50);
+      toast.info('Transaction sent. Waiting for confirmation...');
+
+      const receipt = await tx.wait();
+
+      setPaymentProgress(100);
+      toast.success('Payment confirmed!');
+      //thank you page 
+      //end point payment completed
+
+    
+
+      console.log(`Transaction hash: ${receipt.transactionHash}`);
+      return receipt.transactionHash;
     } catch (err) {
-      console.error('Payment failed:', err.message);
-      setError('Payment failed: ' + err.message);
+      console.error('Payment failed:', err);
+      toast.error(`Payment failed: ${err.message}`);
+      //
+       //end point payment failed
+
+      setPaymentProgress(0);
+      return null;
     }
-  };
+  }, [conversionData, selectedToken, tokens, loadContract]);
 
   return {
     loading,
     queryError,
-    session: data?.getPaymentSession,
+    session,
     tokens,
     selectedToken,
     setSelectedToken,
@@ -189,6 +252,7 @@ const usePayment = () => {
     error,
     remainingTime,
     handlePayButtonClick,
+    paymentProgress,
   };
 };
 
