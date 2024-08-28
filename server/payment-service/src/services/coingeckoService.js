@@ -1,18 +1,25 @@
 const axios = require('axios');
 
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
+const SUPPORTED_CRYPTOS = ['bitcoin', 'ethereum', 'tether', 'ripple', 'cardano'];
+const CRYPTO_ID_MAP = {
+  btc: 'bitcoin',
+  eth: 'ethereum',
+  usdt: 'tether',
+  xrp: 'ripple',
+  ada: 'cardano'
+};
 
-exports.getExchangeRate = async (from, to) => {
+const getExchangeRate = async (from, to) => {
   console.log(`Fetching exchange rate from ${from} to ${to}`);
 
-  // Assuming 'from' is always fiat and 'to' is always crypto
   const fiatCurrency = from.toLowerCase();
-  const cryptoCurrency = to.toLowerCase();
+  let cryptoCurrency = to.toLowerCase();
 
-  // List of supported cryptocurrencies
-  const supportedCryptos = ['bitcoin', 'ethereum', 'tether', 'ripple', 'cardano'];
+  // Map short names to full names if necessary
+  cryptoCurrency = CRYPTO_ID_MAP[cryptoCurrency] || cryptoCurrency;
 
-  if (!supportedCryptos.includes(cryptoCurrency)) {
+  if (!SUPPORTED_CRYPTOS.includes(cryptoCurrency)) {
     throw new Error(`Unsupported cryptocurrency: ${cryptoCurrency}`);
   }
 
@@ -32,8 +39,6 @@ exports.getExchangeRate = async (from, to) => {
     }
 
     const rate = response.data[cryptoCurrency][fiatCurrency];
-
-    // We want how much crypto you get for 1 unit of fiat
     const convertedRate = 1 / rate;
 
     console.log(`Exchange rate: 1 ${from} = ${convertedRate} ${to}`);
@@ -49,4 +54,45 @@ exports.getExchangeRate = async (from, to) => {
     }
     throw new Error(`Failed to fetch exchange rate: ${error.message}`);
   }
+};
+
+const getConversion = async (req, res) => {
+  console.log('Received conversion request:', req.query);
+  const { amount, from, to } = req.query;
+
+  if (!amount || !from || !to) {
+    console.log('Missing parameters:', { amount, from, to });
+    return res.status(400).json({ error: 'Missing required parameters' });
+  }
+
+  if (isNaN(amount)) {
+    console.log('Invalid amount:', amount);
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
+
+  try {
+    console.log(`Fetching exchange rate from ${from} to ${to}`);
+    const rate = await getExchangeRate(from, to);
+    console.log(`Received exchange rate: ${rate}`);
+
+    const convertedAmount = parseFloat(amount) * rate;
+    console.log(`Converted ${amount} ${from} to ${convertedAmount} ${to}`);
+
+    res.json({
+      from,
+      to,
+      amount: parseFloat(amount),
+      convertedAmount,
+      rate,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Conversion error:', error.message);
+    res.status(500).json({ error: `Conversion failed: ${error.message}` });
+  }
+};
+
+module.exports = {
+  getExchangeRate,
+  getConversion
 };

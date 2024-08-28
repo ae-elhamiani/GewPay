@@ -24,6 +24,9 @@ const PaymentSessionSchema = new mongoose.Schema({
     quantity: Number,
     price: Number
   }],
+  customerAddress: {
+    type: String
+  },
   storeLink: {
     type: String,
     required: true

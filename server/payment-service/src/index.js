@@ -6,27 +6,20 @@ const config = require('./config');
 const errorHandler = require('./middleware/errorHandler');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swaggerConfig');
-const cors = require('cors');
 const createApolloServer = require('./apolloServer');
 const orderRoutes = require('./routes/orderRoutes');
 const conversionRoutes = require('./routes/conversionRoutes');
-const PaymentSession = require('./models/PaymentSession');
 require('dotenv').config();
 
 const app = express();
 
-app.use(
-  cors({
-    origin: 'http://localhost:5173',
-  })
-);
 
 app.use(helmet());
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
-app.use('/api', orderRoutes);
-app.use('/api', conversionRoutes);
+app.use('/', orderRoutes);
+app.use('/', conversionRoutes);
 
 
 // Health Check Endpoint for Consul

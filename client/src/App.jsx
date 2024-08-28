@@ -11,17 +11,23 @@ import EmailOTP from './pages/EmailOTP';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import StoresPage from './pages/StoresPage';
-import StorePage from './pages/StorePage'; // New import for individual store page
+import StorePage from './pages/StorePage';
 import { ProfileProvider } from './hooks/ProfileProvider';
 import PrivateRoute from './components/PrivateRoute';
 import NotFound from './pages/NotFound';
+
 import Payment from './pages/Payment';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import Settings from './pages/Settings';
+import KYCSettings from './pages/KYCSettings';
+import SecuritySettings from './pages/SecuritySettings';
 
 const client = new ApolloClient({
   uri: 'http://localhost:5006/graphql',
   cache: new InMemoryCache(),
 });
+
+
 
 function App() {
   return (
@@ -39,28 +45,30 @@ function App() {
             <Route path="verify-phone-otp" element={<PhoneOTP />} />
           </Route>
 
+
           <Route path="/payment-session/:sessionId" element={<Payment />} />
 
-          {/* Protected routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <DashboardLayout />
-              </PrivateRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="stores" element={<StoresPage />} />
-            <Route path=":storeId" element={<StorePage />} />{' '}
-            {/* New route for individual store */}
-          </Route>
 
-          {/* 404 Not Found route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </ProfileProvider>
+        {/* Protected routes */}
+        <Route path="/dashboard" element={
+          <PrivateRoute>
+            <DashboardLayout />
+          </PrivateRoute>
+        }>
+          <Route index element={<Dashboard />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="stores" element={<StoresPage />} />
+          <Route path=":storeId" element={<StorePage />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="settings/kyc" element={<KYCSettings />} />
+          <Route path="settings/security" element={<SecuritySettings />} />
+        </Route>
+
+       
+        {/* 404 Not Found route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </ProfileProvider>
     </ApolloProvider>
   );
 }

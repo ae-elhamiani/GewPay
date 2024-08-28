@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import axios from 'axios';
 import { ethers } from 'ethers';
 import { GET_PAYMENT_SESSION } from '../../graphql/queries';
 import storeService from '../../services/storeService';
+import paymentService from '../../services/paymentService';
 import { toast } from 'react-toastify';
 
 const PAYMENT_CONTRACT_ADDRESS = '0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9';
@@ -107,13 +107,8 @@ const usePayment = () => {
     const fetchConversion = async () => {
       if (session && selectedToken) {
         try {
-          const response = await axios.get('http://localhost:5006/api/convert', {
-            params: {
-              amount: session.amount,
-              from: session.currency.toLowerCase(),
-              to: selectedToken.toLowerCase(),
-            },
-          });
+          const response = await paymentService.getConversion(session.amount, session.currency, selectedToken);
+
 
           if (response.data) {
             setConversionData({
